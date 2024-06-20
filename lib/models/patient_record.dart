@@ -40,6 +40,10 @@ class FollowUp{
   late String date;
   @HiveField(1)
   late String text;
+  @HiveField(2)
+   String? image;
+  @HiveField(3)
+   String? docPath;
 
-  FollowUp({required this.date,required this.text});
+  FollowUp({required this.date,required this.text,this.image,this.docPath});
 }

@@ -17,10 +17,25 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
+  late ScrollController _scrollController;
+
   @override
   void initState() {
-    BlocProvider.of<FetchRecordCubit>(context).fetchAllRecord();
-    super.initState();
+     BlocProvider.of<FetchRecordCubit>(context).fetchAllRecord();
+
+     _scrollController = ScrollController();
+     // Optionally, you can jump to the start position
+     WidgetsBinding.instance.addPostFrameCallback((_) {
+       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+     });
+     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -32,6 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
       body: BlocBuilder<FetchRecordCubit,FetchRecordState>(builder: (BuildContext context, FetchRecordState state) {
         return ListView.builder(
+          controller: _scrollController,
+          reverse: true,
+          shrinkWrap: true,
           physics: BouncingScrollPhysics(),
           itemBuilder: (context,index){
           return Padding(padding: EdgeInsets.all(10),

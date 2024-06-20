@@ -86,7 +86,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                             var currentDate = DateTime.now();
 
                             var formattedCurrentDate =
-                                DateFormat('d-M-y').format(currentDate);
+                                DateFormat('hh:mm d-M-y').format(currentDate);
 
                             PatientRecord patient = PatientRecord(
                                 patientName: patientName!,
@@ -96,9 +96,10 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                 program: program!,
                                 followUpList: [
                                   FollowUp(
-                                      date: formattedCurrentDate, text: "first")
+                                      date: formattedCurrentDate, text: "first",)
                                 ]);
                              BlocProvider.of<AddRecordCubit>(context).addRecord(patient);
+
                           } else {
                             autovalidateMode = AutovalidateMode.always;
                             setState(() {});
@@ -131,8 +132,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
             }
           else if(state is AddRecordSuccess)
           {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (c)=>HomeScreen()));
             Fluttertoast.showToast(msg: "Record Added successfully",backgroundColor: Colors.tealAccent,textColor: Colors.black);
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
           }
         });
   }

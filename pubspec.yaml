@@ -40,6 +40,11 @@ dependencies:
   hive:
   hive_flutter:
   flutter_bloc:
+  image_picker:
+  file_picker:
+  url_launcher:
+#  syncfusion_flutter_pdfviewer:
+  open_file: ^3.3.2
   intl:
   shared_preferences:
   fluttertoast:
@@ -49,7 +54,7 @@ dev_dependencies:
     sdk: flutter
   hive_generator:
   build_runner:
-
+  
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
