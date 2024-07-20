@@ -71,7 +71,9 @@ class RecordCard extends StatelessWidget {
                   size: 30,
                 ),
               ),
+
             ),
+            Text(patient.followUpList.length.toString() + "   follow up items      "),
             Padding(
               padding: const EdgeInsets.only(right: 16, top: 20),
               child: Text(

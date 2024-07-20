@@ -41,9 +41,9 @@ class FollowUp{
   @HiveField(1)
   late String text;
   @HiveField(2)
-   String? image;
+   List<String>? image;
   @HiveField(3)
-   String? docPath;
+   List<String>? docPath;
 
   FollowUp({required this.date,required this.text,this.image,this.docPath});
 }

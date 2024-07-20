@@ -1,17 +1,20 @@
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
-
-
+import 'package:physio_record/AddFollowUpItem/AddFollowUpCubit/add_follow_up_cubit.dart';
+import 'package:physio_record/AddFollowUpItem/AddFollowUpCubit/add_follow_up_states.dart';
+import 'package:physio_record/FollowUpScreen/follow_up_screen.dart';
+import '../HomeScreen/FetchAllRecord/fetch_record_cubit.dart';
 import '../models/patient_record.dart';
 
 import 'package:open_file/open_file.dart';
+import 'package:path/path.dart' as p;
 
 import 'package:url_launcher/url_launcher.dart';
 
@@ -26,35 +29,20 @@ class AddFollowUPItemScreen extends StatefulWidget {
 }
 
 class _AddFollowUPItemScreenState extends State<AddFollowUPItemScreen> {
-
-  TextEditingController textController=TextEditingController();
+  TextEditingController textController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
-  String imagePath="";
+  List<String>? imagePaths = [];
 
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    imagePath=pickedFile!.path;
+    imagePaths!.add(pickedFile!.path);
     if (pickedFile != null) {
-      await _savePhoto(imagePath);
-      setState(() {
-
-      });// Call function to save photo
+      // await _savePhoto(imagePath);
+      setState(() {}); // Call function to save photo
     }
   }
 
-  Future<void> _savePhoto(String imagePath) async {
-    // final photoBox = Hive.box<PatientRecord>("patient_records");
-    // final photo = Photo(imagePath: imagePath, captureDate: DateTime.now());
-    // await photoBox.add(photo); //
-    // Add photo to the Hive box
-    DateTime currentDate = DateTime.now();
-    var formattedCurrentDate = DateFormat('hh:mm d-M-y').format(currentDate);
-    widget.patientRecord.followUpList.add(
-        FollowUp(date: formattedCurrentDate, text: "test", image: imagePath));
-    setState(() {});
-  }
-
-  String? docPath;
+  List<String>? docPaths = [];
   String? docName;
   var pdfFile;
 
@@ -65,114 +53,184 @@ class _AddFollowUPItemScreenState extends State<AddFollowUPItemScreen> {
     if (result != null) {
       final file = result.files.single;
       final path = file.path!;
-      final name = file.name;
-      docPath = path;
-      docName = name;
-      pdfFile=file;
+
+      docPaths!.add(path);
+
+      pdfFile = file;
       setState(() {});
     }
   }
 
-  void openFile() async {
-    OpenFile.open(docPath);
-
-  }
-
-  void saveItem() async{
-    widget.patientRecord.save();
-
+  void openFile(String path) async {
+    OpenFile.open(path);
   }
 
   @override
   Widget build(BuildContext context) {
-
-   Size screenSize= MediaQuery.of(context).size;
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 40,
-              ),
-              Row(
-                children: [
-                  Container(
-                     width: screenSize.width * .78,
-                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                    child: TextField(
-                      controller: textController,
-                      onChanged: (v){
-                        setState(() {
-
-                        });
-                      },
-                      maxLines: null,
-                      decoration: InputDecoration(labelText: "text",
-                      border: OutlineInputBorder()
+    Size screenSize = MediaQuery.of(context).size;
+    return BlocBuilder<AddFollowUpCubit, AddFollowUpState>(
+        builder: (context, state) {
+      return Scaffold(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 40,
+                ),
+                Row(
+                  children: [
+                    Container(
+                      width: screenSize.width * .78,
+                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                      child: TextField(
+                        controller: textController,
+                        onChanged: (v) {
+                          setState(() {});
+                        },
+                        maxLines: null,
+                        decoration: InputDecoration(
+                            labelText: "text", border: OutlineInputBorder()),
                       ),
                     ),
-                  ),
-                  ElevatedButton(onPressed: textController.text.isEmpty && imagePath == "" && docName == null ?null: (){
-                    saveItem();
-                    Navigator.pop(context);
-                  }, child: Text('Save'),style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(horizontal:20,vertical: 25)),),
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              if (imagePath !="")
-                Image.file(
-                  File(widget.patientRecord.followUpList[widget.patientRecord.followUpList.length -1].image!),
-                  width: 200.0,
-                  height: 150.0,
-                  fit: BoxFit.cover,
+                    ElevatedButton(
+                      onPressed: textController.text.isEmpty &&
+                              imagePaths!.isEmpty &&
+                              docPaths!.isEmpty
+                          ? null
+                          : () {
+                              BlocProvider.of<AddFollowUpCubit>(context)
+                                  .addFollowUpItem(
+                                      patientRecord: widget.patientRecord,
+                                      text: textController.text.trim(),
+                                      imagePaths: imagePaths,
+                                      docPaths: docPaths)
+                                  .whenComplete(() {
+                                BlocProvider.of<FetchRecordCubit>(context)
+                                    .fetchAllRecord();
+                                Navigator.pop(context);
+                              });
+                              // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>FollowUPScreen(patientRecord: widget.patientRecord)));
+                            },
+                      child: Text('Save'),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.teal,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 25)),
+                    ),
+                  ],
                 ),
-              const SizedBox(
-                height: 40,
-              ),
-              if (docName != null)
-                TextButton(
-                    onPressed: () {
-                      openFile();
+                SizedBox(
+                  height: 20,
+                ),
+                if (imagePaths != [])
+                  GridView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 10,
+                        crossAxisSpacing: 10),
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Stack(
+                          children: [
+                            Image.file(
+                              File(imagePaths![index]),
+                              width: screenSize.width * .3,
+                              height: screenSize.width * .3,
+                              fit: BoxFit.cover,
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                imagePaths!.removeAt(index);
+                                setState(() {});
+                              },
+                              child: Icon(Icons.close),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey.withOpacity(.5),
+                                  padding: EdgeInsets.symmetric(horizontal: 5),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
                     },
-                    child: Text(docName!)),
-              const SizedBox(
-                height: 20,
-              ),
-              ElevatedButton(
-                  onPressed: () {
-                    _pickImage();
-                  },
-                  child: Text("Add Photo")),
-              const SizedBox(height: 40),
-              ElevatedButton(
-                  onPressed: () {
-                    _choosePdfFile();
-                  },
-                  child: Text("Add document")),
-              const SizedBox(height: 40)
-            ],
+                    itemCount: imagePaths!.length,
+                  ),
+
+                const SizedBox(
+                  height: 40,
+                ),
+                if (docPaths != [])
+                  ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(
+                              onPressed: () {
+                                openFile(docPaths![index]);
+                              },
+                              child: Text(p.basename(docPaths![index]))),
+                          IconButton(onPressed: (){
+                            docPaths!.removeAt(index);
+                            setState(() {
+
+                            });
+                          }, icon:Icon( Icons.close))
+                        ],
+                      );
+                    },
+                    itemCount: docPaths!.length,
+                  ),
+
+                // TextButton(
+                //     onPressed: () {
+                //       openFile();
+                //     },
+                //     child: Text(docName!)),
+
+                const SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                    onPressed: () {
+                      _pickImage();
+                    },
+                    child: Text("Add Photo")),
+                const SizedBox(height: 40),
+                ElevatedButton(
+                    onPressed: () {
+                      _choosePdfFile();
+                    },
+                    child: Text("Add document")),
+                const SizedBox(height: 40)
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
 
-class PdfScreen extends StatelessWidget {
-  const PdfScreen({
-    super.key,
-    required this.docPath,
-  });
-
-  final String? docPath;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      // body: SfPdfViewer.file(File(docPath!)),
-    );
-  }
-}
+// class PdfScreen extends StatelessWidget {
+//   const PdfScreen({
+//     super.key,
+//     required this.docPath,
+//   });
+//
+//   final String? docPath;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//         // body: SfPdfViewer.file(File(docPath!)),
+//         );
+//   }
+// }

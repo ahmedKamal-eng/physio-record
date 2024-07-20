@@ -37,14 +37,21 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_svg:
   path_provider:
+  path:
   hive:
   hive_flutter:
   flutter_bloc:
   image_picker:
   file_picker:
   url_launcher:
+  pdf:
+  share_plus:
+  screenshot:
+  flutter_to_pdf:
+  http:
 #  syncfusion_flutter_pdfviewer:
   open_file: ^3.3.2
+  photo_view:
   intl:
   shared_preferences:
   fluttertoast:

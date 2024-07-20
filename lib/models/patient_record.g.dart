@@ -68,8 +68,8 @@ class FollowUpAdapter extends TypeAdapter<FollowUp> {
     return FollowUp(
       date: fields[0] as String,
       text: fields[1] as String,
-      image: fields[2] as String?,
-      docPath: fields[3] as String?,
+      image: (fields[2] as List?)?.cast<String>(),
+      docPath: (fields[3] as List?)?.cast<String>(),
     );
   }
 

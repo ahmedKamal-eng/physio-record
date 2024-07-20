@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:physio_record/AddRecordScreen/AddRecordCubit/add_record_cubit.dart';
 import 'package:physio_record/AddRecordScreen/AddRecordCubit/add_record_states.dart';
+import 'package:physio_record/HomeScreen/FetchAllRecord/fetch_record_cubit.dart';
 import 'package:physio_record/HomeScreen/home_screen.dart';
 import 'package:physio_record/models/patient_record.dart';
 
@@ -22,6 +23,18 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   AutovalidateMode autovalidateMode = AutovalidateMode.disabled;
 
   String? patientName, diagnosis, mc, program;
+
+  Future<void> _addRecord(PatientRecord patientRecord)async {
+    try {
+      BlocProvider.of<AddRecordCubit>(context)
+          .addRecord(patientRecord);
+      BlocProvider.of<FetchRecordCubit>(context)
+          .fetchAllRecord();
+    }catch(e){
+      print(e.toString());
+    }
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +92,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                         height: 40,
                       ),
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async{
                           if (formKey.currentState!.validate()) {
                             formKey.currentState!.save();
 
@@ -94,11 +107,14 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                 diagnosis: diagnosis!,
                                 mc: [mc!],
                                 program: program!,
-                                followUpList: [
-                                  FollowUp(
-                                      date: formattedCurrentDate, text: "first",)
-                                ]);
-                             BlocProvider.of<AddRecordCubit>(context).addRecord(patient);
+                                followUpList: []);
+
+
+
+                            _addRecord(patient).whenComplete(() {
+                              Navigator.pop(context);
+                            });
+
 
                           } else {
                             autovalidateMode = AutovalidateMode.always;
@@ -132,8 +148,9 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
             }
           else if(state is AddRecordSuccess)
           {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (c)=>HomeScreen()));
+
             Fluttertoast.showToast(msg: "Record Added successfully",backgroundColor: Colors.tealAccent,textColor: Colors.black);
+
           }
         });
   }

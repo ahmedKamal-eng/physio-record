@@ -6,7 +6,10 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:physio_record/AddRecordScreen/AddRecordCubit/add_record_cubit.dart';
 import 'package:physio_record/HomeScreen/FetchAllRecord/fetch_record_cubit.dart';
+import 'package:physio_record/RecordDetailsScreen/EditRecordCubit/edit_record_cubit.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
+import 'AddFollowUpItem/AddFollowUpCubit/add_follow_up_cubit.dart';
 import 'models/patient_record.dart';
 import 'Splash/splash_screen.dart';
 import 'global_vals.dart';
@@ -51,6 +54,8 @@ class MyApp extends StatelessWidget {
         providers: [
           BlocProvider(create: (context) => AddRecordCubit()),
           BlocProvider(create: (context) => FetchRecordCubit()),
+          BlocProvider(create: (context) => AddFollowUpCubit()),
+          BlocProvider(create: (context) => EditRecordCubit()),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
@@ -68,6 +73,7 @@ class MyApp extends StatelessWidget {
           ),
           themeMode: ThemeMode.system, // Use system theme mode (light or dark)
           home: const SplashScreen(),
+          // home: TestScreen(),
         ));
   }
 }
