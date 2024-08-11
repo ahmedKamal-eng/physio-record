@@ -21,6 +21,7 @@ class RecordDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    Size screenSize=MediaQuery.of(context).size;
 
     TextEditingController editController = TextEditingController();
     GlobalKey<FormState> formState = GlobalKey();
@@ -208,10 +209,11 @@ class RecordDetailsScreen extends StatelessWidget {
                                   MaterialPageRoute(
                                       builder: (context) => FollowUPScreen(
                                           patientRecord: patientRecord)));
+
                             },
                             child: Text(
                               "Go To Follow Up Section",
-                              style: TextStyle(fontSize: 22),
+                              style: TextStyle(fontSize: screenSize.width *.06),
                             )),
                       ),
 

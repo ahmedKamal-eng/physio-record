@@ -23,13 +23,15 @@ class PatientRecordAdapter extends TypeAdapter<PatientRecord> {
       mc: (fields[3] as List).cast<String>(),
       program: fields[4] as String,
       followUpList: (fields[5] as List).cast<FollowUp>(),
+      id: fields[6] as String,
+      onlyInLocal: fields[7] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, PatientRecord obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.patientName)
       ..writeByte(1)
@@ -41,7 +43,11 @@ class PatientRecordAdapter extends TypeAdapter<PatientRecord> {
       ..writeByte(4)
       ..write(obj.program)
       ..writeByte(5)
-      ..write(obj.followUpList);
+      ..write(obj.followUpList)
+      ..writeByte(6)
+      ..write(obj.id)
+      ..writeByte(7)
+      ..write(obj.onlyInLocal);
   }
 
   @override

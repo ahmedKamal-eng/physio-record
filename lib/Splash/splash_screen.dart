@@ -1,7 +1,11 @@
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:physio_record/HomeScreen/home_screen.dart';
+import 'package:physio_record/LoginScreen/login_screen.dart';
+import 'package:physio_record/sign_up_screen/sign_up_screen.dart';
+
+import '../HomeScreen/home_screen.dart';
 
 
 class SplashScreen extends StatefulWidget {
@@ -13,11 +17,14 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
 
+
   double paddingVal=.4;
 
 
   @override
   void initState() {
+
+
 
     Future.delayed(Duration(milliseconds: 400),(){
       paddingVal=0.05;
@@ -26,9 +33,16 @@ class _SplashScreenState extends State<SplashScreen> {
       });
 
 
-      Future.delayed(Duration(seconds: 1),(){
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
-
+      Future.delayed(Duration(seconds: 2),(){
+        if(FirebaseAuth.instance.currentUser == null)
+          {
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => LoginScreen()));
+          }
+        else {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => HomeScreen()));
+        }
       });
     });
 
@@ -47,7 +61,6 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment:MainAxisAlignment.center,
-
 
           children: [
            CircleAvatar(

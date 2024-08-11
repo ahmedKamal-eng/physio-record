@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
@@ -14,6 +16,8 @@ class RecordCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isDark =
+        Theme.of(context).brightness == Brightness.dark ? true : false;
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -24,7 +28,7 @@ class RecordCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.only(top: 24, bottom: 24, left: 16),
         decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
+            color: isDark ? Colors.black54 : Colors.lightBlue,
             borderRadius: BorderRadius.circular(16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -51,6 +55,14 @@ class RecordCard extends StatelessWidget {
                                   var box = Hive.box<PatientRecord>(
                                       'patient_records');
                                   box.deleteAt(patientIndex);
+                                  FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(FirebaseAuth
+                                          .instance.currentUser!.uid)
+                                      .collection('records')
+                                      .doc(patient.id)
+                                      .delete();
+
                                   BlocProvider.of<FetchRecordCubit>(context)
                                       .fetchAllRecord();
                                   Navigator.pop(context);
@@ -71,9 +83,9 @@ class RecordCard extends StatelessWidget {
                   size: 30,
                 ),
               ),
-
             ),
-            Text(patient.followUpList.length.toString() + "   follow up items      "),
+            Text(patient.followUpList.length.toString() +
+                "   follow up items      "),
             Padding(
               padding: const EdgeInsets.only(right: 16, top: 20),
               child: Text(

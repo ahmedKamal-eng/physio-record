@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "375942093179",
+    "project_id": "physio-records",
+    "storage_bucket": "physio-records.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:375942093179:android:611a015babd651132045de",
+        "android_client_info": {
+          "package_name": "com.example.physio_record"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCezacnUKWnO4lilsnM-SMTuIU78iRBGU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

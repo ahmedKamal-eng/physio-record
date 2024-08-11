@@ -1,3 +1,5 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:physio_record/AddRecordScreen/add_record_Screen.dart';
@@ -5,6 +7,7 @@ import 'package:physio_record/HomeScreen/FetchAllRecord/fetch_record_cubit.dart'
 import 'package:physio_record/HomeScreen/FetchAllRecord/fetch_record_state.dart';
 import 'package:physio_record/HomeScreen/widgets/record_card.dart';
 import 'package:physio_record/SearchScreen/search_screen.dart';
+import 'package:physio_record/Splash/splash_screen.dart';
 import 'package:physio_record/global_vals.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,31 +18,59 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late ScrollController _scrollController;
+  late List<ConnectivityResult> connectivityResult;
+
+
+  initialConnectivity()async{
+     connectivityResult= await (Connectivity().checkConnectivity());
+  }
+
+  // late ScrollController _scrollController;
 
   @override
   void initState() {
+    super.initState();
+
+
+  _checkConnectivityAndUpload();
+initialConnectivity();
+
     BlocProvider.of<FetchRecordCubit>(context).fetchAllRecord();
 
-    _scrollController = ScrollController();
-    // Optionally, you can jump to the start position
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-    });
-    super.initState();
+    // _scrollController = ScrollController();
+    // // Optionally, you can jump to the start position
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    // });
+  }
+  _checkConnectivityAndUpload()async{
+    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+    if(!connectivityResult.contains(ConnectivityResult.none)){
+      BlocProvider.of<FetchRecordCubit>(context).uploadLocalRecordsToFirestore();
+    }
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
-    _scrollController.dispose();
+    // _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    bool isDark=  Theme.of(context).brightness == Brightness.dark?true:false;
+
+
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.person_off),
+          onPressed: (){
+            FirebaseAuth.instance.signOut();
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>SplashScreen()));
+          },
+        ),
         title: Text("Physio Record"),
         actions: [
           Padding(
@@ -95,21 +126,28 @@ class _HomeScreenState extends State<HomeScreen> {
       body: BlocBuilder<FetchRecordCubit, FetchRecordState>(
         builder: (BuildContext context, FetchRecordState state) {
           return Column(
-           mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               if (BlocProvider.of<FetchRecordCubit>(context).isFiltered)
                 SizedBox(
-                  height: MediaQuery.of(context).size.height *.1,
-                  child: TextButton(onPressed: (){
-                    BlocProvider.of<FetchRecordCubit>(context).clearFilter();
-                  }, child: Text("Clear filter")),
+                  height: MediaQuery.of(context).size.height * .1,
+                  child: TextButton(
+                      onPressed: () {
+                        BlocProvider.of<FetchRecordCubit>(context)
+                            .clearFilter();
+                      },
+                      child: Text("Clear filter")),
                 ),
-
               if (BlocProvider.of<FetchRecordCubit>(context).isFiltered)
                 SizedBox(
-                  height:BlocProvider.of<FetchRecordCubit>(context).filteredPatientRecords!.length <=3? MediaQuery.of(context).size.height * .4: MediaQuery.of(context).size.height * .7,
+                  height: BlocProvider.of<FetchRecordCubit>(context)
+                              .filteredPatientRecords!
+                              .length <=
+                          3
+                      ? MediaQuery.of(context).size.height * .4
+                      : MediaQuery.of(context).size.height * .7,
                   child: ListView.builder(
-                    controller: _scrollController,
+                    // controller: _scrollController,
                     padding: EdgeInsets.zero,
                     reverse: true,
                     shrinkWrap: true,
@@ -132,9 +170,8 @@ class _HomeScreenState extends State<HomeScreen> {
               if (!BlocProvider.of<FetchRecordCubit>(context).isFiltered)
                 Expanded(
                   child: ListView.builder(
-                    controller: _scrollController,
+
                     padding: EdgeInsets.zero,
-                    reverse: true,
                     shrinkWrap: true,
                     physics: BouncingScrollPhysics(),
                     itemBuilder: (context, index) {
@@ -167,17 +204,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
       floatingActionButton: ElevatedButton(
         style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             elevation: 10,
-            backgroundColor: Colors.teal),
+            backgroundColor: Colors.teal,
+            shape:  RoundedRectangleBorder(borderRadius: BorderRadius.circular(5),),
+        ),
+
         onPressed: () {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => AddRecordScreen()));
         },
+
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Add Record"),
+            Text("Add Record",style: Theme.of(context).textTheme.titleMedium,),
             SizedBox(
               width: 15,
             ),
@@ -185,6 +226,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+
+
+
 
       // FloatingActionButton(
       //
@@ -196,6 +240,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
       //     },
       // ),
+
+
     );
   }
 }

@@ -61,6 +61,6 @@ class SimplePdfApi {
   }
 
   static Future<void> sharePdf(String path) async {
-    await Share.shareFiles([path]);
+    await Share.share(path);
   }
 }

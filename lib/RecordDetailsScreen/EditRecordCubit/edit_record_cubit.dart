@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:physio_record/models/patient_record.dart';
 
@@ -11,6 +12,7 @@ class EditRecordCubit extends Cubit<EditRecordState> {
     try {
       patientRecord.patientName = name;
       patientRecord.save();
+
       emit(EditNameSuccess());
     } catch (e) {
       emit(EditNameError(error: e.toString()));

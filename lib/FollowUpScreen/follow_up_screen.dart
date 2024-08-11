@@ -109,6 +109,10 @@ class _FollowUPScreenState extends State<FollowUPScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+
+    bool isDark=  Theme.of(context).brightness == Brightness.dark?true:false;
+
     return BlocBuilder<AddFollowUpCubit, AddFollowUpState>(
         builder: (context, state) {
       return Scaffold(
@@ -118,6 +122,7 @@ class _FollowUPScreenState extends State<FollowUPScreen> {
           actions: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
+                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
                   padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
                   elevation: 10,
                   backgroundColor: Colors.teal),
@@ -131,7 +136,7 @@ class _FollowUPScreenState extends State<FollowUPScreen> {
               },
               child: Text(
                 "Add To FollowUp",
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: 18,color:Colors.white),
               ),
             ),
           ],
