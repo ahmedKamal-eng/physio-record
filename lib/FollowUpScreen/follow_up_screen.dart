@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:open_file/open_file.dart';
 import 'package:pdf/widgets.dart' as pd;
+import 'package:physio_record/PdfGenerator/followup_pdf.dart';
 import 'package:physio_record/PdfGenerator/generate_pdf.dart';
 
 import 'package:physio_record/AddFollowUpItem/AddFollowUpCubit/add_follow_up_cubit.dart';
@@ -93,8 +94,28 @@ class _FollowUPScreenState extends State<FollowUPScreen> {
             actions: [
               ElevatedButton(
                   onPressed: () async{
-                      File pdfRecord= await SimplePdfApi.generateSimplePdf(widget.patientRecord);
-                      OpenFile.open(pdfRecord.path);
+                    // List<FollowUp> items=[];
+                    //    try {
+                    //       items = await SimplePdfApi
+                    //          .fetchFollowUp(widget.patientRecord.id);
+                    //    }catch(e)
+                    // {
+                    //   print("###########################${e.toString()}");
+                    // }
+                    //
+                    //
+                    //     SimplePdfApi().generateSimplePdf([FollowUp(date: "9 /2/2024", text: "dfkjsngjfiog", id: "dfgjs",image: ['https://firebasestorage.googleapis.com/v0/b/physio-records.appspot.com/o/images%2F5119b569-2dcf-4c00-96db-ce874157ccc0%2F1ef68064-55dc-6380-9a32-a3de5af2aed3%2FScreenshot_2024-05-28-08-39-19-88_6012fa4d4ddec268fc5c7112cbb265e7.png?alt=media&token=64664329-4608-463c-ab03-3446c5bf370b'])],widget.patientRecord.patientName).then((val){
+                    //       SimplePdfApi.openPdf(val);
+                    //
+                    //     });
+                    //
+                    //   // SimplePdfApi.sharePdf(pdfRecord.path);
+
+                    FollowupPdf().fetchFollowUpList(widget.patientRecord.id).whenComplete((){
+                      FollowupPdf().generateSimplePdf(widget.patientRecord.patientName).then((val){
+                        FollowupPdf.openPdf(val);
+                      });
+                    });
                   },
                   child: Text("Yes")),
               ElevatedButton(
@@ -195,7 +216,7 @@ class _FollowUPScreenState extends State<FollowUPScreen> {
               controller: _scrollController,
               padding: EdgeInsets.zero,
               shrinkWrap: true,
-              reverse: true,
+              // reverse: true,
               itemBuilder: (context, index) {
                 return FollowUpItemCard(
                     followUp: widget.patientRecord.followUpList[index]);

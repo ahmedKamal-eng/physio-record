@@ -6,6 +6,7 @@ import 'package:physio_record/AddRecordScreen/AddRecordCubit/add_record_cubit.da
 import 'package:physio_record/AddRecordScreen/AddRecordCubit/add_record_states.dart';
 import 'package:physio_record/HomeScreen/FetchAllRecord/fetch_record_cubit.dart';
 import 'package:physio_record/HomeScreen/home_screen.dart';
+import 'package:physio_record/RecordDetailsScreen/record_details_screen.dart';
 import 'package:physio_record/models/patient_record.dart';
 import 'package:uuid/uuid.dart';
 
@@ -25,15 +26,15 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   AutovalidateMode autovalidateMode = AutovalidateMode.disabled;
 
   String? patientName, diagnosis, mc, program;
+  PatientRecord? patient;
 
   Future<void> _addRecord(PatientRecord patientRecord) async {
     try {
       BlocProvider.of<AddRecordCubit>(context).addRecord(patientRecord);
-      BlocProvider.of<FetchRecordCubit>(context).fetchAllRecord();
     } catch (e) {
       print(e.toString());
     }
-    Navigator.pop(context);
+
   }
 
   @override
@@ -103,7 +104,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
 
                         var uuid = Uuid();
                         String recordId = uuid.v4();
-                        PatientRecord patient = PatientRecord(
+                        patient = PatientRecord(
                             patientName: patientName!,
                             id: recordId,
                             date: formattedCurrentDate,
@@ -111,10 +112,12 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                             mc: [mc!],
                             program: program!,
                             followUpList: [],
-                            onlyInLocal: false);
+                            onlyInLocal: false, followUpIdsOnlyInLocal: [], followUpIdsUpdatedOnlyInLocal: []);
 
-                        _addRecord(patient).whenComplete(() {
-                          Navigator.pop(context);
+                        _addRecord(patient!).whenComplete(() {
+                          // Navigator.pop(context);
+
+
                         });
                       } else {
                         autovalidateMode = AutovalidateMode.always;
@@ -133,25 +136,30 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
         ),
       );
     }, listener: (context, state) {
-      if (state is AddRecordLoading) {
-        showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                content: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            });
-      } else if (state is AddRecordError) {
+      // if (state is AddRecordLoading) {
+      //   showDialog(
+      //       context: context,
+      //       builder: (context) {
+      //         return AlertDialog(
+      //           content: Center(
+      //             child: CircularProgressIndicator(),
+      //           ),
+      //         );
+      //       });
+      // } else
+
+        if (state is AddRecordError) {
         Fluttertoast.showToast(
             msg: "${state.error}", backgroundColor: Colors.redAccent);
         print(state.error);
       } else if (state is AddRecordSuccess) {
+          BlocProvider.of<FetchRecordCubit>(context).fetchAllRecord();
         Fluttertoast.showToast(
             msg: "Record Added successfully",
             backgroundColor: Colors.tealAccent,
             textColor: Colors.black);
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>RecordDetailsScreen(patientRecord: patient!)));
+
       }
     });
   }

@@ -1,14 +1,20 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutterflow_paginate_firestore/paginate_firestore.dart';
+import 'package:hive/hive.dart';
 import 'package:physio_record/AddRecordScreen/add_record_Screen.dart';
+import 'package:physio_record/FetchRecordFromFireStore/fetch_record_from_fire_store_screen.dart';
 import 'package:physio_record/HomeScreen/FetchAllRecord/fetch_record_cubit.dart';
 import 'package:physio_record/HomeScreen/FetchAllRecord/fetch_record_state.dart';
 import 'package:physio_record/HomeScreen/widgets/record_card.dart';
 import 'package:physio_record/SearchScreen/search_screen.dart';
 import 'package:physio_record/Splash/splash_screen.dart';
 import 'package:physio_record/global_vals.dart';
+import 'package:physio_record/models/patient_record.dart';
+import 'package:physio_record/widgets/my_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -18,22 +24,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late List<ConnectivityResult> connectivityResult;
-
-
-  initialConnectivity()async{
-     connectivityResult= await (Connectivity().checkConnectivity());
-  }
+  // List<ConnectivityResult>? connectivityResult;
+  //
+  // initialConnectivity() async {
+  //   connectivityResult = await (Connectivity().checkConnectivity());
+  // }
 
   // late ScrollController _scrollController;
 
   @override
   void initState() {
+    // initialConnectivity();
     super.initState();
 
-
-  _checkConnectivityAndUpload();
-initialConnectivity();
+    _checkConnectivityAndUpload();
 
     BlocProvider.of<FetchRecordCubit>(context).fetchAllRecord();
 
@@ -42,11 +46,16 @@ initialConnectivity();
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     //   _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     // });
+
   }
-  _checkConnectivityAndUpload()async{
-    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
-    if(!connectivityResult.contains(ConnectivityResult.none)){
-      BlocProvider.of<FetchRecordCubit>(context).uploadLocalRecordsToFirestore();
+
+  _checkConnectivityAndUpload() async {
+    final List<ConnectivityResult> connectivityResult =
+        await (Connectivity().checkConnectivity());
+    if (!connectivityResult.contains(ConnectivityResult.none)) {
+      BlocProvider.of<FetchRecordCubit>(context)
+          .uploadLocalRecordsToFirestore();
+      BlocProvider.of<FetchRecordCubit>(context).updateRecordInFirestore();
     }
   }
 
@@ -59,19 +68,28 @@ initialConnectivity();
 
   @override
   Widget build(BuildContext context) {
-    bool isDark=  Theme.of(context).brightness == Brightness.dark?true:false;
-
+    bool isDark =
+        Theme.of(context).brightness == Brightness.dark ? true : false;
 
     return Scaffold(
+      drawer: MyDrawer(),
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.person_off),
-          onPressed: (){
-            FirebaseAuth.instance.signOut();
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>SplashScreen()));
-          },
-        ),
+
+        // leading: IconButton(
+        //   icon: Icon(Icons.person_off),
+        //   onPressed: () {
+        //     FirebaseAuth.instance.signOut();
+        //
+        //     Navigator.pushReplacement(
+        //       context,
+        //       MaterialPageRoute(
+        //         builder: (context) => SplashScreen(),
+        //       ),
+        //     );
+        //   },
+        // ),
         title: Text("Physio Record"),
+
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 18.0),
@@ -153,13 +171,17 @@ initialConnectivity();
                     shrinkWrap: true,
                     physics: BouncingScrollPhysics(),
                     itemBuilder: (context, index) {
-                      return Padding(
-                        padding: EdgeInsets.all(10),
-                        child: RecordCard(
-                          patient: BlocProvider.of<FetchRecordCubit>(context)
-                              .filteredPatientRecords![index],
-                          patientIndex: index,
-                        ),
+                      return Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(10),
+                            child: RecordCard(
+                              patient: BlocProvider.of<FetchRecordCubit>(context)
+                                  .filteredPatientRecords![index],
+                              patientIndex: index,
+                            ),
+                          ),
+                        ],
                       );
                     },
                     itemCount: BlocProvider.of<FetchRecordCubit>(context)
@@ -170,7 +192,6 @@ initialConnectivity();
               if (!BlocProvider.of<FetchRecordCubit>(context).isFiltered)
                 Expanded(
                   child: ListView.builder(
-
                     padding: EdgeInsets.zero,
                     shrinkWrap: true,
                     physics: BouncingScrollPhysics(),
@@ -189,6 +210,40 @@ initialConnectivity();
                         .length,
                   ),
                 )
+              // : Expanded(
+              //     child: PaginateFirestore(
+              //       shrinkWrap: true,
+              //       itemsPerPage: 3,
+              //       isLive: true,
+              //       initialLoader: const Center(
+              //         child: CircularProgressIndicator.adaptive(),
+              //       ),
+              //       onEmpty: Center(
+              //         child: Text("Empty data"),
+              //       ),
+              //       bottomLoader: const Center(
+              //         child: CircularProgressIndicator(),
+              //       ),
+              //       itemBuilder: (context, snapshot, index) {
+              //         PatientRecord patient =
+              //             PatientRecord.fromFirestore(snapshot[index]);
+              //         return Padding(
+              //           padding: const EdgeInsets.all(10.0),
+              //           child: RecordCard(
+              //               patient: patient, patientIndex: index),
+              //         );
+              //       },
+              //       query: FirebaseFirestore.instance
+              //           .collection('users')
+              //           .doc(FirebaseAuth.instance.currentUser!.uid)
+              //           .collection('records'),
+              //       itemBuilderType: PaginateBuilderType.listView,
+              //     ),
+              //   ),
+              ,
+              SizedBox(
+                height: 70,
+              )
             ],
           );
         },
@@ -204,21 +259,29 @@ initialConnectivity();
 
       floatingActionButton: ElevatedButton(
         style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            elevation: 10,
-            backgroundColor: Colors.teal,
-            shape:  RoundedRectangleBorder(borderRadius: BorderRadius.circular(5),),
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          elevation: 10,
+          backgroundColor: Colors.teal,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
         ),
+        onPressed: () async {
+          var recordBox = await Hive.box<PatientRecord>('patient_records');
+          int x=BlocProvider.of<FetchRecordCubit>(context).patientRecords!.length;
+          print(x);
+          print(recordBox.values.length.toString());
 
-        onPressed: () {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => AddRecordScreen()));
         },
-
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Add Record",style: Theme.of(context).textTheme.titleMedium,),
+            Text(
+              "Add Record",
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             SizedBox(
               width: 15,
             ),
@@ -226,9 +289,6 @@ initialConnectivity();
           ],
         ),
       ),
-
-
-
 
       // FloatingActionButton(
       //
@@ -240,8 +300,6 @@ initialConnectivity();
 
       //     },
       // ),
-
-
     );
   }
 }

@@ -1,5 +1,6 @@
-
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -10,8 +11,6 @@ import 'package:physio_record/RecordDetailsScreen/EditRecordCubit/edit_record_cu
 
 import 'package:physio_record/models/patient_record.dart';
 
-
-
 class RecordDetailsScreen extends StatelessWidget {
   PatientRecord patientRecord;
 
@@ -20,13 +19,12 @@ class RecordDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    Size screenSize=MediaQuery.of(context).size;
+    Size screenSize = MediaQuery.of(context).size;
 
     TextEditingController editController = TextEditingController();
     GlobalKey<FormState> formState = GlobalKey();
 
-    _showEditDialog(String txt, BuildContext context,String fieldName) {
+    _showEditDialog(String txt, BuildContext context, String fieldName) {
       editController.text = txt;
       showDialog(
           context: context,
@@ -46,30 +44,65 @@ class RecordDetailsScreen extends StatelessWidget {
                   controller: editController,
                   decoration: InputDecoration(
                       suffix: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (formState.currentState!.validate()) {
-                         if(fieldName=="name") {
-                           BlocProvider.of<EditRecordCubit>(context).editName(
-                               patientRecord, editController.text.trim());
-                         }
-                         else if(fieldName=="diagnosis") {
-                           BlocProvider.of<EditRecordCubit>(context).editDiagnosis(
-                               patientRecord, editController.text.trim());
-                         }
-                         else if(fieldName=="mc")
-                           {
-                             BlocProvider.of<EditRecordCubit>(context).editMC(
-                                 patientRecord, editController.text.trim());
-                           }
-                         else if(fieldName == "program")
-                           {
-                             BlocProvider.of<EditRecordCubit>(context).editProgram(
-                                 patientRecord, editController.text.trim());
-                           }
+                        final List<ConnectivityResult> connectivityResult =
+                            await (Connectivity().checkConnectivity());
+                        if (!connectivityResult
+                            .contains(ConnectivityResult.none)) {
+                          if (fieldName == "name") {
+                            FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).collection('records').doc(patientRecord.id).update(
+                                {"patientName":editController.text.trim()});
+                            BlocProvider.of<EditRecordCubit>(context).editName(
+                                patientRecord, editController.text.trim());
+                          } else if (fieldName == "diagnosis") {
+                            FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).collection('records').doc(patientRecord.id).update(
+                                {"diagnosis":editController.text.trim()});
 
-                        BlocProvider.of<FetchRecordCubit>(context)
-                            .fetchAllRecord();
-                        Navigator.pop(context);
+                            BlocProvider.of<EditRecordCubit>(context)
+                                .editDiagnosis(
+                                patientRecord, editController.text.trim());
+                          } else if (fieldName == "mc") {
+
+                            FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).collection('records').doc(patientRecord.id).update(
+                                {"mc":editController.text.trim()});
+                            BlocProvider.of<EditRecordCubit>(context).editMC(
+                                patientRecord, editController.text.trim());
+                          } else if (fieldName == "program") {
+                            FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).collection('records').doc(patientRecord.id).update(
+                                {"program":editController.text.trim()});
+                            BlocProvider.of<EditRecordCubit>(context)
+                                .editProgram(
+                                patientRecord, editController.text.trim());
+                          }
+
+                          BlocProvider.of<FetchRecordCubit>(context)
+                              .fetchAllRecord();
+
+                          Navigator.pop(context);
+                        } else {
+                          if (fieldName == "name") {
+                            BlocProvider.of<EditRecordCubit>(context).editName(
+                                patientRecord, editController.text.trim());
+                          } else if (fieldName == "diagnosis") {
+                            BlocProvider.of<EditRecordCubit>(context)
+                                .editDiagnosis(
+                                    patientRecord, editController.text.trim());
+                          } else if (fieldName == "mc") {
+                            BlocProvider.of<EditRecordCubit>(context).editMC(
+                                patientRecord, editController.text.trim());
+                          } else if (fieldName == "program") {
+                            BlocProvider.of<EditRecordCubit>(context)
+                                .editProgram(
+                                    patientRecord, editController.text.trim());
+                          }
+
+                          patientRecord.updatedInLocal=true;
+                          patientRecord.save();
+                          BlocProvider.of<FetchRecordCubit>(context)
+                              .fetchAllRecord();
+                          Navigator.pop(context);
+                        }
                       }
                     },
                     child: Text("Edit"),
@@ -85,8 +118,10 @@ class RecordDetailsScreen extends StatelessWidget {
       return Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title:Text(patientRecord.date,style:TextStyle(fontSize: 30) ,),
-
+          title: Text(
+            patientRecord.date,
+            style: TextStyle(fontSize: 30),
+          ),
         ),
         body: Container(
           padding: EdgeInsets.all(20),
@@ -113,7 +148,7 @@ class RecordDetailsScreen extends StatelessWidget {
                           IconButton(
                               onPressed: () {
                                 _showEditDialog(
-                                    patientRecord.patientName, context,"name");
+                                    patientRecord.patientName, context, "name");
                                 // BlocProvider.of<EditRecordCubit>(context).editName(patientRecord, "ahmed");
                               },
                               icon: Icon(
@@ -135,8 +170,8 @@ class RecordDetailsScreen extends StatelessWidget {
                           ),
                           IconButton(
                               onPressed: () {
-                                _showEditDialog(
-                                    patientRecord.diagnosis, context,"diagnosis");
+                                _showEditDialog(patientRecord.diagnosis,
+                                    context, "diagnosis");
                                 // BlocProvider.of<EditRecordCubit>(context).editName(patientRecord, "ahmed");
                               },
                               icon: Icon(
@@ -158,7 +193,7 @@ class RecordDetailsScreen extends StatelessWidget {
                           IconButton(
                               onPressed: () {
                                 _showEditDialog(
-                                    patientRecord.mc[0], context,"mc");
+                                    patientRecord.mc[0], context, "mc");
                                 // BlocProvider.of<EditRecordCubit>(context).editName(patientRecord, "ahmed");
                               },
                               icon: Icon(
@@ -177,11 +212,10 @@ class RecordDetailsScreen extends StatelessWidget {
                             'Program: ${patientRecord.program}',
                             style: Theme.of(context).textTheme.headlineMedium,
                           ),
-
                           IconButton(
                               onPressed: () {
                                 _showEditDialog(
-                                    patientRecord.program, context,"program");
+                                    patientRecord.program, context, "program");
                                 // BlocProvider.of<EditRecordCubit>(context).editName(patientRecord, "ahmed");
                               },
                               icon: Icon(
@@ -209,11 +243,11 @@ class RecordDetailsScreen extends StatelessWidget {
                                   MaterialPageRoute(
                                       builder: (context) => FollowUPScreen(
                                           patientRecord: patientRecord)));
-
                             },
                             child: Text(
                               "Go To Follow Up Section",
-                              style: TextStyle(fontSize: screenSize.width *.06),
+                              style:
+                                  TextStyle(fontSize: screenSize.width * .06),
                             )),
                       ),
 

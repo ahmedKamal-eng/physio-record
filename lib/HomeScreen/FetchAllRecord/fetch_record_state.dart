@@ -20,3 +20,12 @@ class FilterRecordsError extends FetchRecordState{
 
 
 class ClearFilter extends FetchRecordState{}
+
+
+//upload Local data states
+class UploadLocalDataLoading extends FetchRecordState{}
+class UploadLocalDataSuccess extends FetchRecordState{}
+class UploadLocalDataError extends FetchRecordState{
+ final String error;
+ UploadLocalDataError({required this.error});
+}

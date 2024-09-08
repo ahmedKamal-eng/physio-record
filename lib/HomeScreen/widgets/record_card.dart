@@ -1,12 +1,16 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:physio_record/RecordDetailsScreen/record_details_screen.dart';
+import 'package:physio_record/global_vals.dart';
 import 'package:physio_record/models/patient_record.dart';
 
 import '../FetchAllRecord/fetch_record_cubit.dart';
+import 'package:path/path.dart' as path;
 
 class RecordCard extends StatelessWidget {
   PatientRecord patient;
@@ -55,6 +59,20 @@ class RecordCard extends StatelessWidget {
                                   var box = Hive.box<PatientRecord>(
                                       'patient_records');
                                   box.deleteAt(patientIndex);
+                                  if (patient.followUpList.isNotEmpty) {
+                                    for(var followUp in patient.followUpList)
+                                      {
+                                        if(followUp.image!.isNotEmpty){
+                                          for(var img in followUp.image!)
+                                            {
+                                              File file =File(img);
+                                              final fileName = path.basename(file.path);
+                                              deleteFile('images/${patient.id}/${followUp.id}/$fileName');
+                                            }
+                                         }
+                                      }
+                                  }
+
                                   FirebaseFirestore.instance
                                       .collection('users')
                                       .doc(FirebaseAuth

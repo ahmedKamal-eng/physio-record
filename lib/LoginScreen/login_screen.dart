@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:hive/hive.dart';
+import 'package:physio_record/FetchRecordFromFireStore/fetch_record_from_fire_store_screen.dart';
 import 'package:physio_record/HomeScreen/home_screen.dart';
 import 'package:physio_record/sign_up_screen/sign_up_screen.dart';
 
 import '../global_vals.dart';
+import '../models/patient_record.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -18,6 +21,25 @@ class _LoginScreenState extends State<LoginScreen> {
   String _email = '';
   String _password = '';
   bool _isLoading = false;
+
+  _fetchRecordsThatNotStoredLocally()async{
+    CollectionReference collectionRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('records');
+    QuerySnapshot snapshot= await collectionRef.get();
+
+    int numberOfRecordOnline=snapshot.docs.length;
+    var recordBox = Hive.box<PatientRecord>('patient_records');
+    int numberOfRecordsLocally=recordBox.values.length;
+    if(numberOfRecordOnline>numberOfRecordsLocally)
+      {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>FetchRecordFromFireStoreScreen()));
+      }else{
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => HomeScreen()));
+    }
+  }
 
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
@@ -31,8 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
         );
 
         // Navigate to the home screen upon successful login
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => HomeScreen()));
+        _fetchRecordsThatNotStoredLocally();
+
       } on FirebaseAuthException catch (e) {
         String message = 'An error occurred';
         if (e.code == 'user-not-found') {

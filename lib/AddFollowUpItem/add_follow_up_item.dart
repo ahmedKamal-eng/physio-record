@@ -40,6 +40,7 @@ class _AddFollowUPItemScreenState extends State<AddFollowUPItemScreen> {
       // await _savePhoto(imagePath);
       setState(() {}); // Call function to save photo
     }
+    print(pickedFile.path);
   }
 
   List<String>? docPaths = [];
