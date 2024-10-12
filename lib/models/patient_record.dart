@@ -27,7 +27,7 @@ class PatientRecord extends HiveObject {
   late String id;
 
   @HiveField(7)
-  late bool onlyInLocal;
+   bool? onlyInLocal;
 
   @HiveField(8)
   late bool updatedInLocal;
@@ -37,6 +37,9 @@ class PatientRecord extends HiveObject {
 
   @HiveField(10)
   List<String> followUpIdsUpdatedOnlyInLocal = [];
+
+  // @HiveField(11)
+  // bool? isShared;
 
   PatientRecord(
       {required this.patientName,
@@ -66,7 +69,11 @@ class PatientRecord extends HiveObject {
         followUpIdsOnlyInLocal: [],
         followUpIdsUpdatedOnlyInLocal: []);
   }
+
+
 }
+
+
 
 @HiveType(typeId: 1)
 class FollowUp {
@@ -102,8 +109,6 @@ class FollowUp {
         id= data['id'];
         image=List<String>.from(data['image']);
         docPath=List<String>.from(data['docPaths']);
-
-
         // docPath= fetchAndDownloadFiles('docs', data['RecordId'], data['RecordId']);
         // image= fetchAndDownloadFiles('images', data['RecordId'], data['RecordId']);
   }

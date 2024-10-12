@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive/hive.dart';
@@ -8,6 +9,7 @@ import 'package:physio_record/FetchRecordFromFireStore/fetch_record_from_fire_st
 import 'package:physio_record/HomeScreen/home_screen.dart';
 import 'package:physio_record/sign_up_screen/sign_up_screen.dart';
 
+import '../Cubits/DeleteSharedRecordFromLocal/delete_shared_record_cubit.dart';
 import '../global_vals.dart';
 import '../models/patient_record.dart';
 
@@ -53,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
 
         // Navigate to the home screen upon successful login
-        _fetchRecordsThatNotStoredLocally();
+        await _fetchRecordsThatNotStoredLocally();
 
       } on FirebaseAuthException catch (e) {
         String message = 'An error occurred';
@@ -66,6 +68,10 @@ class _LoginScreenState extends State<LoginScreen> {
           SnackBar(content: Text(message)),
         );
       } finally {
+
+        if(FirebaseAuth.instance.currentUser != null) {
+          await BlocProvider.of<DeleteSharedRecordCubit>(context).getSharedRecordAndAcceptedRequestsIds();
+        }
         setState(() {
           _isLoading = false;
         });
@@ -161,77 +167,90 @@ class _LoginScreenState extends State<LoginScreen> {
         padding: EdgeInsets.all(16.0),
         child: _isLoading
             ? Center(child: CircularProgressIndicator())
-            : Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text("Login",
-                        style: Theme.of(context).textTheme.headlineMedium),
-                    SizedBox(height: size.height * 0.1),
-                    TextFormField(
-                      decoration: InputDecoration(labelText: 'Email'),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            !value.contains('@')) {
-                          return 'Please enter a valid email address';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        _email = value;
-                      },
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(labelText: 'Password'),
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            value.length < 6) {
-                          return 'Password must be at least 6 characters long';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        _password = value;
-                      },
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _login,
-                      child: Text('Login'),
-                    ),
-                    SignInButton(Buttons.Google, onPressed: ()async  {
-
-                      UserCredential? user=await signInWithGoogle();
-                      if(user != null)
-                        {
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
-                        }
-
-                    }),
-                    TextButton(
-                        onPressed: () {}, child: Text("Forget Password")),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Don't have an account"),
-                        TextButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => SignUpScreen()));
-                            },
-                            child: Text("Sign up"))
-                      ],
-                    )
-                  ],
+            : SingleChildScrollView(
+              child:  Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      SizedBox(height: size.height * .1,),
+                      Text("Login",
+                          style: Theme.of(context).textTheme.headlineMedium),
+                      SizedBox(height: size.height * 0.1),
+                      Padding(
+                        padding: const EdgeInsets.all(18.0),
+                        child: TextFormField(
+                          decoration: InputDecoration(labelText: 'Email'),
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null ||
+                                value.isEmpty ||
+                                !value.contains('@')) {
+                              return 'Please enter a valid email address';
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            _email = value;
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(18.0),
+                        child: TextFormField(
+                          decoration: InputDecoration(labelText: 'Password'),
+                          obscureText: true,
+                          validator: (value) {
+                            if (value == null ||
+                                value.isEmpty ||
+                                value.length < 6) {
+                              return 'Password must be at least 6 characters long';
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            _password = value;
+                          },
+                        ),
+                      ),
+                      SizedBox(height: size.height * 0.04),
+              
+                      ElevatedButton(
+                        onPressed: _login,
+                        child: Text('Login'),
+                      ),
+                      SizedBox(height: size.height * 0.07),
+              
+                      // SignInButton(Buttons.Google, onPressed: ()async  {
+                      //
+                      //   UserCredential? user=await signInWithGoogle();
+                      //   if(user != null)
+                      //     {
+                      //       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+                      //     }
+                      //
+                      // }),
+              
+                      TextButton(
+                          onPressed: () {}, child: Text("Forget Password")),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Don't have an account"),
+                          TextButton(
+                              onPressed: () {
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => SignUpScreen()));
+                              },
+                              child: Text("Sign up"))
+                        ],
+                      )
+                    ],
+                  ),
                 ),
-              ),
+            ),
       ),
     );
   }

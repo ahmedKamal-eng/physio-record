@@ -120,7 +120,7 @@ class RecordDetailsScreen extends StatelessWidget {
           centerTitle: true,
           title: Text(
             patientRecord.date,
-            style: TextStyle(fontSize: 30),
+            style: TextStyle(fontSize: 30,color: Colors.teal),
           ),
         ),
         body: Container(
@@ -132,7 +132,7 @@ class RecordDetailsScreen extends StatelessWidget {
                 padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(width: 2, color: Colors.grey),
+                  border: Border.all(width: 2, color: Colors.teal),
                 ),
                 child: SingleChildScrollView(
                   child: Column(
@@ -153,7 +153,6 @@ class RecordDetailsScreen extends StatelessWidget {
                               },
                               icon: Icon(
                                 Icons.edit,
-                                color: Colors.blue,
                                 size: 35,
                               ))
                         ],
@@ -161,6 +160,7 @@ class RecordDetailsScreen extends StatelessWidget {
                       const SizedBox(
                         height: 20,
                       ),
+
 
                       Wrap(
                         children: [
@@ -176,7 +176,7 @@ class RecordDetailsScreen extends StatelessWidget {
                               },
                               icon: Icon(
                                 Icons.edit,
-                                color: Colors.blue,
+
                                 size: 35,
                               ))
                         ],
@@ -198,7 +198,7 @@ class RecordDetailsScreen extends StatelessWidget {
                               },
                               icon: Icon(
                                 Icons.edit,
-                                color: Colors.blue,
+
                                 size: 35,
                               ))
                         ],
@@ -220,7 +220,7 @@ class RecordDetailsScreen extends StatelessWidget {
                               },
                               icon: Icon(
                                 Icons.edit,
-                                color: Colors.blue,
+
                                 size: 35,
                               ))
                         ],
@@ -230,6 +230,7 @@ class RecordDetailsScreen extends StatelessWidget {
                       ),
                       Divider(
                         thickness: 3,
+                        color: Colors.teal,
                       ),
                       SizedBox(
                         height: 20,

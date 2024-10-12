@@ -5,17 +5,21 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:physio_record/AddRecordScreen/AddRecordCubit/add_record_cubit.dart';
+import 'package:physio_record/Cubits/GetUserDataCubit/get_user_data_cubit.dart';
 import 'package:physio_record/HomeScreen/FetchAllRecord/fetch_record_cubit.dart';
-import 'package:physio_record/HomeScreen/home_screen.dart';
 import 'package:physio_record/RecordDetailsScreen/EditRecordCubit/edit_record_cubit.dart';
+import 'package:physio_record/ShareRequestScreen/AcceptRequestCubit/accept_request_cubit.dart';
 import 'package:physio_record/global_vals.dart';
-
+import 'package:physio_record/widgets/LogoutCubit/logout_cubit.dart';
 import 'AddFollowUpItem/AddFollowUpCubit/add_follow_up_cubit.dart';
+import 'Cubits/DeleteSharedRecordFromLocal/delete_shared_record_cubit.dart';
+import 'SearchForDoctorsScreen/ShareRecordCubit/share_record_cubit.dart';
 import 'models/patient_record.dart';
 import 'Splash/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +47,12 @@ void main() async {
           BlocProvider(create: (context) => FetchRecordCubit()),
           BlocProvider(create: (context) => AddFollowUpCubit()),
           BlocProvider(create: (context) => EditRecordCubit()),
+          BlocProvider(create: (context) => LogoutCubit()),
+          BlocProvider(create: (context) => GetUserDataCubit()),
+          BlocProvider(create: (context) => ShareRecordCubit()),
+          BlocProvider(create: (context) => AcceptRequestCubit()),
+          BlocProvider(create: (context) => DeleteSharedRecordCubit()),
+
         ],
         child: MyApp(),
       ),
@@ -60,6 +70,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // final providers = [EmailAuthProvider(),GoogleProvider(clientId: clientId)];
     return MaterialApp(
+
       // routes: {
       //   '/sign-in': (context) {
       //     return SignInScreen(
@@ -86,6 +97,19 @@ class MyApp extends StatelessWidget {
 
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.teal,
+            elevation: 15
+          )
+        ),
+        iconButtonTheme: IconButtonThemeData(
+          style:IconButton.styleFrom(
+            foregroundColor: Colors.teal
+          ),
+        ),
+
         // Define your light theme here
         brightness: Brightness.light,
         // Other theme properties like colors, fonts, etc.
@@ -97,7 +121,7 @@ class MyApp extends StatelessWidget {
         // Other theme properties for dark mode
         // ...
       ),
-      themeMode: ThemeMode.dark, // Use system theme mode (light or dark)
+      themeMode: ThemeMode.system, // Use system theme mode (light or dark)
       // initialRoute:  '/',
       home: SplashScreen(),
       // home: TestScreen(),

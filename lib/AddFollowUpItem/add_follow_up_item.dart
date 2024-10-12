@@ -33,8 +33,8 @@ class _AddFollowUPItemScreenState extends State<AddFollowUPItemScreen> {
   final ImagePicker _picker = ImagePicker();
   List<String>? imagePaths = [];
 
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  Future<void> _pickImage(ImageSource imageSource) async {
+    final pickedFile = await _picker.pickImage(source: imageSource);
     imagePaths!.add(pickedFile!.path);
     if (pickedFile != null) {
       // await _savePhoto(imagePath);
@@ -114,7 +114,7 @@ class _AddFollowUPItemScreenState extends State<AddFollowUPItemScreen> {
                               });
                               // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>FollowUPScreen(patientRecord: widget.patientRecord)));
                             },
-                      child: Text('Save'),
+                      child:state is AddFollowUpLoading?Center(child: CircularProgressIndicator(),): Text('Save',style: TextStyle(color: Colors.white,fontSize: 18),),
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.teal,
                           padding: EdgeInsets.symmetric(
@@ -201,10 +201,16 @@ class _AddFollowUPItemScreenState extends State<AddFollowUPItemScreen> {
                 ),
                 ElevatedButton(
                     onPressed: () {
-                      _pickImage();
+                      _pickImage(ImageSource.gallery);
                     },
-                    child: Text("Add Photo")),
+                    child: Text("Add Photo from gallery")),
                 const SizedBox(height: 40),
+                ElevatedButton(
+                    onPressed: () {
+                      _pickImage(ImageSource.camera);
+                    },
+                    child: Text("take photo from camera")),
+                const SizedBox(height: 20,),
                 ElevatedButton(
                     onPressed: () {
                       _choosePdfFile();

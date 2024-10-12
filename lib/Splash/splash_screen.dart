@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:physio_record/LoginScreen/login_screen.dart';
 import 'package:physio_record/sign_up_screen/sign_up_screen.dart';
 
+import '../Cubits/DeleteSharedRecordFromLocal/delete_shared_record_cubit.dart';
 import '../HomeScreen/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -18,6 +20,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
+
+    if(FirebaseAuth.instance.currentUser != null) {
+      BlocProvider.of<DeleteSharedRecordCubit>(context).getSharedRecordAndAcceptedRequestsIds();
+    }
+
     Future.delayed(Duration(milliseconds: 400), () {
       paddingVal = 0.05;
 

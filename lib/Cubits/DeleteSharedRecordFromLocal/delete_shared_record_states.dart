@@ -1,0 +1,9 @@
+
+
+abstract class DeleteSharedRecordState{}
+
+class DeleteSharedRecordInitialState extends DeleteSharedRecordState{}
+
+class DeleteSharedRecordLoadingState extends DeleteSharedRecordState{}
+class DeleteSharedRecordSuccessState extends DeleteSharedRecordState{}
+class DeleteSharedRecordErrorState extends DeleteSharedRecordState{}

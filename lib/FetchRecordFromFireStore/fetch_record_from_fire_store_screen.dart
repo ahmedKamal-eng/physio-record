@@ -60,18 +60,18 @@ class _FetchRecordFromFireStoreScreenState
                     val.docs[i].data()['RecordId'], val.docs[i].data()['id']);
                 followUp.docPath = await fetchAndDownloadFiles('docs',
                     val.docs[i].data()['RecordId'], val.docs[i].data()['id']);
-                print("#############################${followUp.image![0]}");
+                // print("#############################${followUp.image![0]}");
 
                 patientRecord.followUpList.add(followUp);
               }
             }
           }).whenComplete(() {
             patientRecord.save();
-            print(patientRecord.followUpList.length);
+            // print(patientRecord.followUpList.length);
           });
         }
       }
-    }).whenComplete(() {
+    }).whenComplete(() async{
 
       BlocProvider.of<FetchRecordCubit>(context).fetchAllRecord();
       Navigator.pushReplacement(

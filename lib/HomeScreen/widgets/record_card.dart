@@ -24,6 +24,7 @@ class RecordCard extends StatelessWidget {
         Theme.of(context).brightness == Brightness.dark ? true : false;
     return GestureDetector(
       onTap: () {
+        print(patient.followUpList.length.toString()+")))))))))))))))))");
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -32,18 +33,20 @@ class RecordCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.only(top: 24, bottom: 24, left: 16),
         decoration: BoxDecoration(
-            color: isDark ? Colors.black54 : Colors.lightBlue,
+            color: isDark ? Colors.black54 : Colors.teal,
             borderRadius: BorderRadius.circular(16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             ListTile(
               title: Text(patient.patientName,
-                  style: Theme.of(context).textTheme.headlineSmall),
+                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.white)),
               subtitle: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Text(patient.diagnosis,
-                    style: Theme.of(context).textTheme.titleLarge),
+                    maxLines: 1,
+                    overflow:TextOverflow.ellipsis ,
+                    style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.white)),
               ),
               trailing: IconButton(
                 onPressed: () {
@@ -55,7 +58,7 @@ class RecordCard extends StatelessWidget {
                               Text("Are you sure you want to delete this item"),
                           actions: [
                             ElevatedButton(
-                                onPressed: () {
+                                onPressed: () async{
                                   var box = Hive.box<PatientRecord>(
                                       'patient_records');
                                   box.deleteAt(patientIndex);
@@ -73,13 +76,28 @@ class RecordCard extends StatelessWidget {
                                       }
                                   }
 
-                                  FirebaseFirestore.instance
-                                      .collection('users')
-                                      .doc(FirebaseAuth
-                                          .instance.currentUser!.uid)
-                                      .collection('records')
-                                      .doc(patient.id)
-                                      .delete();
+                                  final docRef = FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).collection('records').doc(patient.id);
+                                  final batch = FirebaseFirestore.instance.batch();
+
+                                  // Delete the document
+                                  batch.delete(docRef);
+
+                                  // Recursively delete subcollection
+                                  final subcollectionRef = docRef.collection('followUp');
+                                  final docs = await subcollectionRef.get();
+                                  for (final doc in docs.docs) {
+                                    batch.delete(doc.reference);
+                                  }
+                                  batch.commit();
+
+
+                                 // await FirebaseFirestore.instance
+                                 //      .collection('users')
+                                 //      .doc(FirebaseAuth
+                                 //          .instance.currentUser!.uid)
+                                 //      .collection('records')
+                                 //      .doc(patient.id)
+                                 //      .delete();
 
                                   BlocProvider.of<FetchRecordCubit>(context)
                                       .fetchAllRecord();
@@ -97,18 +115,18 @@ class RecordCard extends StatelessWidget {
                 },
                 icon: Icon(
                   Icons.delete,
-                  color: Theme.of(context).iconTheme.color,
+                  color: Colors.white,
                   size: 30,
                 ),
               ),
             ),
             Text(patient.followUpList.length.toString() +
-                "   follow up items      "),
+                "   follow up items      ",style: TextStyle(color: Colors.white),),
             Padding(
               padding: const EdgeInsets.only(right: 16, top: 20),
               child: Text(
                 patient.date,
-                style: Theme.of(context).textTheme.titleLarge,
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.white),
               ),
             )
           ],

@@ -6,10 +6,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutterflow_paginate_firestore/paginate_firestore.dart';
 import 'package:hive/hive.dart';
 import 'package:physio_record/AddRecordScreen/add_record_Screen.dart';
+import 'package:physio_record/Cubits/DeleteSharedRecordFromLocal/delete_shared_record_cubit.dart';
+import 'package:physio_record/Cubits/GetUserDataCubit/get_user_data_cubit.dart';
 import 'package:physio_record/FetchRecordFromFireStore/fetch_record_from_fire_store_screen.dart';
 import 'package:physio_record/HomeScreen/FetchAllRecord/fetch_record_cubit.dart';
 import 'package:physio_record/HomeScreen/FetchAllRecord/fetch_record_state.dart';
 import 'package:physio_record/HomeScreen/widgets/record_card.dart';
+
 import 'package:physio_record/SearchScreen/search_screen.dart';
 import 'package:physio_record/Splash/splash_screen.dart';
 import 'package:physio_record/global_vals.dart';
@@ -39,24 +42,33 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _checkConnectivityAndUpload();
 
-    BlocProvider.of<FetchRecordCubit>(context).fetchAllRecord();
+
 
     // _scrollController = ScrollController();
     // // Optionally, you can jump to the start position
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     //   _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     // });
-
   }
 
   _checkConnectivityAndUpload() async {
     final List<ConnectivityResult> connectivityResult =
         await (Connectivity().checkConnectivity());
     if (!connectivityResult.contains(ConnectivityResult.none)) {
-      BlocProvider.of<FetchRecordCubit>(context)
+     await BlocProvider.of<FetchRecordCubit>(context)
           .uploadLocalRecordsToFirestore();
-      BlocProvider.of<FetchRecordCubit>(context).updateRecordInFirestore();
+     await BlocProvider.of<FetchRecordCubit>(context).updateRecordInFirestore();
+
+      // delete Shared Record from Local
+     await BlocProvider.of<DeleteSharedRecordCubit>(context)
+          .deleteSharedRecordFromUserRecordsInLocalAndFirestore();
+
+     await BlocProvider.of<GetUserDataCubit>(context).getUserData();
+
     }
+
+   await BlocProvider.of<FetchRecordCubit>(context).fetchAllRecord();
+
   }
 
   @override
@@ -74,7 +86,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       drawer: MyDrawer(),
       appBar: AppBar(
-
         // leading: IconButton(
         //   icon: Icon(Icons.person_off),
         //   onPressed: () {
@@ -88,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
         //     );
         //   },
         // ),
-        title: Text("Physio Record"),
+        title: Text("Physio Record",style: TextStyle(color: Colors.teal),),
 
         actions: [
           Padding(
@@ -176,8 +187,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           Padding(
                             padding: EdgeInsets.all(10),
                             child: RecordCard(
-                              patient: BlocProvider.of<FetchRecordCubit>(context)
-                                  .filteredPatientRecords![index],
+                              patient:
+                                  BlocProvider.of<FetchRecordCubit>(context)
+                                      .filteredPatientRecords![index],
                               patientIndex: index,
                             ),
                           ),
@@ -268,7 +280,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         onPressed: () async {
           var recordBox = await Hive.box<PatientRecord>('patient_records');
-          int x=BlocProvider.of<FetchRecordCubit>(context).patientRecords!.length;
+          int x =
+              BlocProvider.of<FetchRecordCubit>(context).patientRecords!.length;
           print(x);
           print(recordBox.values.length.toString());
 
@@ -280,12 +293,18 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Text(
               "Add Record",
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium!
+                  .copyWith(color: Colors.white),
             ),
             SizedBox(
               width: 15,
             ),
-            Icon(Icons.person_add_alt_1_outlined)
+            Icon(
+              Icons.person_add_alt_1_outlined,
+              color: Colors.white,
+            )
           ],
         ),
       ),

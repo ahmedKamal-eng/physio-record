@@ -1,9 +1,15 @@
+import 'dart:io';
+// import 'dart:nativewrappers/_internal/vm/lib/core_patch.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:physio_record/HomeScreen/home_screen.dart';
 import 'package:physio_record/LoginScreen/login_screen.dart';
 import 'package:physio_record/global_vals.dart';
+import 'package:path/path.dart' as path;
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -15,169 +21,244 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String _email = '';
   String _userName = '';
   String _password = '';
-  String _confirmPassword = '';
+  String _imageUrl='';
+  String _imagePath='';
+  String _medicalSpecialization='';
   bool _isLoading = false;
 
+  Future<void> storeImageInFireStorage()async{
+
+    String imageFile = DateTime.now().millisecondsSinceEpoch.toString();
+
+    final fileName = path.basename(imageXFile!.path);
+    final storageRef = FirebaseStorage.instance.ref().child('users/$imageFile/$fileName');
+    _imagePath='users/$imageFile/$fileName';
+    await storageRef.putFile(File(imageXFile!.path));
+    _imageUrl = await storageRef.getDownloadURL();
+  }
+
   Future<void> _signUp() async {
-    if (_formKey.currentState!.validate()) {
+    if(imageXFile == null)
+      {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('please choose the image first')),
+        );
+      }
+    if (_formKey.currentState!.validate() && imageXFile != null) {
+
+      storeImageInFireStorage().whenComplete(()async{
+        try {
+          UserCredential userCredential =
+              await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            email: _email.trim(),
+            password: _password.trim(),
+          );
+          Timestamp currentDate=Timestamp.now();
+
+          FirebaseFirestore.instance
+              .collection('users')
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .set({
+            'id': FirebaseAuth.instance.currentUser!.uid,
+            'status':"approved",
+            'registrationTime':currentDate,
+            'startTime':currentDate,
+            'endTime':getTimeAfterXMonth(time: currentDate.toDate(), x: 2),
+            'userName':_userName.trim(),
+            'userNameLowerCase':_userName.trim().toLowerCase(),
+            'email':_email.trim(),
+            'medicalSpecialization':_medicalSpecialization.trim(),
+            "imageUrl":_imageUrl,
+            "imagePath":_imagePath
+
+          }).whenComplete((){
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+          });
+
+          // User registration successful, navigate to home screen or display success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('User registered successfully!')),
+          );
+          // Navigate to another screen if needed
+        } on FirebaseAuthException catch (e) {
+          String message = 'An error occurred';
+          if (e.code == 'email-already-in-use') {
+            message = 'This email is already in use';
+          } else if (e.code == 'weak-password') {
+            message = 'The password provided is too weak';
+          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
+        } catch (e) {
+          print(e);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('An unknown error occurred')),
+          );
+        } finally {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      });
+
       _formKey.currentState!.save();
       setState(() {
         _isLoading = true;
       });
-      try {
-        UserCredential userCredential =
-            await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _email.trim(),
-          password: _password.trim(),
-        );
-        Timestamp currentDate=Timestamp.now();
 
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .set({
-          'id': FirebaseAuth.instance.currentUser!.uid,
-          'status':"approved",
-          'registrationTime':currentDate,
-          'startTime':currentDate,
-          'endTime':getTimeAfterXMonth(time: currentDate.toDate(), x: 2),
-          'userName':_userName.trim(),
-          'email':_email.trim()
-        }).whenComplete((){
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
-        });
 
-        // User registration successful, navigate to home screen or display success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User registered successfully!')),
-        );
-        // Navigate to another screen if needed
-      } on FirebaseAuthException catch (e) {
-        String message = 'An error occurred';
-        if (e.code == 'email-already-in-use') {
-          message = 'This email is already in use';
-        } else if (e.code == 'weak-password') {
-          message = 'The password provided is too weak';
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
-      } catch (e) {
-        print(e);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('An unknown error occurred')),
-        );
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
-      }
     }
   }
+
+  // get image from gallery
+  XFile? imageXFile;
+  ImagePicker imagePicker = ImagePicker();
+
+  Future<void> getImageFromGallery() async {
+    imageXFile = await imagePicker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      imageXFile;
+    });
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
     Size size =MediaQuery.of(context).size;
 
     return Scaffold(
-
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: _isLoading
-            ? Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-              child: Form(
-                key: _formKey,
-                child: Column(
-
-                  children: <Widget>[
-                    SizedBox(height: size.height *.1,),
-                    Text("Sign Up",style: Theme.of(context).textTheme.headlineMedium,),
-                    SizedBox(height: size.height *.1,),
-
-                    TextFormField(
-                      decoration: InputDecoration(labelText: 'Email'),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            !value.contains('@')) {
-                          return 'Please enter a valid email address';
-                        }
-                        return null;
-                      },
-                      onSaved: (value) {
-                        _email = value!;
-                      },
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(labelText: 'UserName'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a valid User Name address';
-                        }
-                        return null;
-                      },
-                      onSaved: (value) {
-                        _userName = value!;
-                      },
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(labelText: 'Password'),
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            value.length < 6) {
-                          return 'Password must be at least 6 characters long';
-                        }
-                        return null;
-                      },
-                      onChanged: (v){
-                        _password=v!;
-
-                      },
-                      onSaved: (value) {
-                        _password = value!;
-                      },
-                    ),
-                    TextFormField(
-                      decoration:
-                          InputDecoration(labelText: 'Confirm Password'),
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please confirm your password';
-                        }
-                        if (value != _password) {
-                          return 'Passwords do not match';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    SizedBox(height: size.height *.05,),
-
-                    ElevatedButton(
-                      onPressed: _signUp,
-                      child: Text('Sign Up'),
-                    ),
-                    SizedBox(height: size.height *.1,),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-
-                        Text("Already have an account"),
-                        TextButton(onPressed: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginScreen()));
-                        }, child: Text("Login"))
-                      ],
-                    )
-                  ],
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+        
+                    children: <Widget>[
+                      
+                      Text("Sign Up",style: Theme.of(context).textTheme.headlineMedium,),
+                      SizedBox(height: size.height *.03,),
+                      InkWell(
+                        onTap: (){
+                             getImageFromGallery();
+                        },
+                        child: CircleAvatar(
+                          radius: size.width * .21,
+                          backgroundColor: Colors.teal,
+                          child: CircleAvatar(
+                            backgroundImage: imageXFile == null ? null : FileImage(File(imageXFile!.path)),
+                            radius: size.width * .2,
+                            child:imageXFile== null? Column(
+                              children: [
+                                Icon(Icons.photo_camera_front_outlined,color:Colors.teal,size:size.width * .2 ,),
+                                Text("choose profile photo")
+                              ],
+                            ):null,
+                          ),
+                        ),
+                      ),
+        
+                      TextFormField(
+                        decoration: InputDecoration(labelText: 'Email'),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              !value.contains('@')) {
+                            return 'Please enter a valid email address';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _email = value!;
+                        },
+                      ),
+                      TextFormField(
+                        decoration: InputDecoration(labelText: 'UserName'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a valid User Name ';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _userName = value!;
+                        },
+                      ),
+                      TextFormField(
+                        decoration: InputDecoration(labelText: 'Medical Specialization'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a Medical Specialization ';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _medicalSpecialization = value!;
+                        },
+                      ),
+                      TextFormField(
+                        decoration: InputDecoration(labelText: 'Password'),
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              value.length < 6) {
+                            return 'Password must be at least 6 characters long';
+                          }
+                          return null;
+                        },
+                        onChanged: (v){
+                          _password=v!;
+        
+                        },
+                        onSaved: (value) {
+                          _password = value!;
+                        },
+                      ),
+                      TextFormField(
+                        decoration:
+                            InputDecoration(labelText: 'Confirm Password'),
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please confirm your password';
+                          }
+                          if (value != _password) {
+                            return 'Passwords do not match';
+                          }
+                          return null;
+                        },
+                      ),
+        
+                      SizedBox(height: size.height *.05,),
+        
+                      ElevatedButton(
+                        onPressed: _signUp,
+                        child: Text('Sign Up'),
+                      ),
+                      SizedBox(height: size.height *.1,),
+        
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+        
+                          Text("Already have an account"),
+                          TextButton(onPressed: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginScreen()));
+                          }, child: Text("Login"))
+                        ],
+                      )
+                    ],
+                  ),
                 ),
               ),
-            ),
+        ),
       ),
     );
   }
