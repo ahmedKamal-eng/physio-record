@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:physio_record/EmailVerificationScreen/email_verification_screen.dart';
 import 'package:physio_record/HomeScreen/home_screen.dart';
 import 'package:physio_record/LoginScreen/login_screen.dart';
 import 'package:physio_record/global_vals.dart';
@@ -63,7 +64,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             'status':"approved",
             'registrationTime':currentDate,
             'startTime':currentDate,
-            'endTime':getTimeAfterXMonth(time: currentDate.toDate(), x: 2),
+            'endTime':getTimeAfterXMonth(time: currentDate.toDate(), x: 1),
             'userName':_userName.trim(),
             'userNameLowerCase':_userName.trim().toLowerCase(),
             'email':_email.trim(),
@@ -72,7 +73,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             "imagePath":_imagePath
 
           }).whenComplete((){
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>EmailVerificationScreen()));
           });
 
           // User registration successful, navigate to home screen or display success message
@@ -80,6 +81,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             SnackBar(content: Text('User registered successfully!')),
           );
           // Navigate to another screen if needed
+
         } on FirebaseAuthException catch (e) {
           String message = 'An error occurred';
           if (e.code == 'email-already-in-use') {
@@ -129,6 +131,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     Size size =MediaQuery.of(context).size;
 
     return Scaffold(
+      backgroundColor: Colors.teal,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(16.0),
@@ -148,15 +151,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                              getImageFromGallery();
                         },
                         child: CircleAvatar(
-                          radius: size.width * .21,
-                          backgroundColor: Colors.teal,
+                          radius: size.width * .22,
+                          backgroundColor:imageXFile== null?Colors.teal: Colors.white,
                           child: CircleAvatar(
                             backgroundImage: imageXFile == null ? null : FileImage(File(imageXFile!.path)),
-                            radius: size.width * .2,
-                            child:imageXFile== null? Column(
+                            radius: size.width * .21,
+                            backgroundColor: Colors.teal,
+                            child: imageXFile== null? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.photo_camera_front_outlined,color:Colors.teal,size:size.width * .2 ,),
-                                Text("choose profile photo")
+                                SizedBox(height: 18,),
+                                Text("choose profile photo",style: TextStyle(color: Colors.white),)
+                                ,
+                                Icon(Icons.photo_camera_front_outlined,color:Colors.white,size:size.width * .2 ,),
                               ],
                             ):null,
                           ),
@@ -164,7 +171,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
         
                       TextFormField(
-                        decoration: InputDecoration(labelText: 'Email'),
+                        style: TextStyle(color: Colors.white),
+
+                        decoration:const InputDecoration(
+                          // Change the default border color when the TextField is enabled
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            // Change the border color when the TextField is focused
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            // Change the border color when there's an error
+                            errorBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.red),
+                            ),
+                            // Optional: Change the border color when the TextField is focused and there's an error
+                            focusedErrorBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.redAccent),
+                            ),
+                            labelText: 'Email',labelStyle: TextStyle(color: Colors.white)),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null ||
@@ -179,7 +205,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         },
                       ),
                       TextFormField(
-                        decoration: InputDecoration(labelText: 'UserName'),
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          // Change the default border color when the TextField is enabled
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          // Change the border color when the TextField is focused
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          //
+
+                          labelText: 'UserName',labelStyle: TextStyle(color: Colors.white),),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter a valid User Name ';
@@ -191,7 +229,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         },
                       ),
                       TextFormField(
-                        decoration: InputDecoration(labelText: 'Medical Specialization'),
+                        style: TextStyle(color: Colors.white),
+
+                        decoration: InputDecoration(
+                          // Change the default border color when the TextField is enabled
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            // Change the border color when the TextField is focused
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            //
+                            labelText: 'Medical Specialization',
+                            labelStyle: TextStyle(color: Colors.white)
+                        ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter a Medical Specialization ';
@@ -203,7 +255,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         },
                       ),
                       TextFormField(
-                        decoration: InputDecoration(labelText: 'Password'),
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          // Change the default border color when the TextField is enabled
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            // Change the border color when the TextField is focused
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            //
+                            labelText: 'Password',
+                          labelStyle: TextStyle(
+                            color: Colors.white
+                          )
+
+                        ),
                         obscureText: true,
                         validator: (value) {
                           if (value == null ||
@@ -222,8 +290,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         },
                       ),
                       TextFormField(
+                        style: TextStyle(color: Colors.white),
                         decoration:
-                            InputDecoration(labelText: 'Confirm Password'),
+                            InputDecoration(
+                              // Change the default border color when the TextField is enabled
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                                // Change the border color when the TextField is focused
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                                //
+                                labelText: 'Confirm Password',
+                              labelStyle: TextStyle(color: Colors.white)
+                            ),
                         obscureText: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -240,7 +321,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         
                       ElevatedButton(
                         onPressed: _signUp,
-                        child: Text('Sign Up'),
+                        child: Text('Sign Up',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
                       ),
                       SizedBox(height: size.height *.1,),
         
@@ -251,7 +332,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           Text("Already have an account"),
                           TextButton(onPressed: (){
                             Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginScreen()));
-                          }, child: Text("Login"))
+                          }, child: Text("Login",style: TextStyle(color: Colors.white,fontSize: 20),))
                         ],
                       )
                     ],

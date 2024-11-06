@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/rendering.dart';
@@ -20,6 +21,8 @@ import 'package:physio_record/SearchForDoctorsScreen/search_for_doctors_screen.d
 import 'package:physio_record/models/patient_record.dart';
 
 import 'package:path/path.dart';
+
+import '../ShareWithFriendScreen/share_with_friend_screen.dart';
 
 class FollowUPScreen extends StatefulWidget {
   final PatientRecord patientRecord;
@@ -185,10 +188,21 @@ class _FollowUPScreenState extends State<FollowUPScreen> {
                                   style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.teal),
                                   onPressed: () {
+                                    Navigator.pop(context);
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ShareWithFriendScreen(
+                                                  doctorIds:[FirebaseAuth.instance.currentUser!.uid],
+                                                  recordModel:widget.patientRecord,
+                                                  isSharedBefore:
+                                                  false,
+                                                )));
 
                                   },
                                   child: Text(
-                                    "Share with fellow doctors",
+                                    "Share with friend doctors",
                                     style: TextStyle(color: Colors.white),
                                   )),
                               SizedBox(
@@ -199,7 +213,7 @@ class _FollowUPScreenState extends State<FollowUPScreen> {
                                       backgroundColor: Colors.teal),
                                   onPressed: () {
                                     Navigator.pop(context);
-                                    showSearch(context: context, delegate: UserSearchDelegate(patientRecord: widget.patientRecord));
+                                    showSearch(context: context, delegate: UserSearchDelegate(patientRecord: widget.patientRecord,isSharedBefore: false,doctorsIds: []));
                                   },
                                   child: Text(
                                     "Search for doctors",

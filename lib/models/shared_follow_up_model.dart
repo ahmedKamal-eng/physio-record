@@ -1,6 +1,7 @@
 
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:physio_record/global_vals.dart';
 
 class SharedFollowUpModel {
   final String recordId;
@@ -28,7 +29,7 @@ class SharedFollowUpModel {
 
     return SharedFollowUpModel(
       recordId: data['RecordId'],
-      date: data['date'],
+      date: data['date'] is Timestamp ? convertTimestampToString(data['date']) : data['date'],
       doctorId: data['doctorId'],
       doctorName: data['doctorName'],
       id: data['id'],

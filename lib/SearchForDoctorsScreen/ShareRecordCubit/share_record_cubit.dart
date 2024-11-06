@@ -19,8 +19,10 @@ class ShareRecordCubit extends Cubit<ShareRecordState> {
       required String receiverDoctorID,
       required String receiverDoctorName,
       required String diagnosis,
+      required bool isSharedBefore
 
       }) async {
+
     emit(ShareRecordLoading());
 
     try {
@@ -35,9 +37,9 @@ class ShareRecordCubit extends Cubit<ShareRecordState> {
           .doc(requestId)
           .set({
         "senderId": FirebaseAuth.instance.currentUser!.uid,
-        'doctorIds':[FirebaseAuth.instance.currentUser!.uid],
+        'doctorIds':[FirebaseAuth.instance.currentUser!.uid,receiverDoctorID],
         "recordId": recordId,
-        "doctorsSharedThisRecord": false,
+        "doctorsSharedThisRecord": isSharedBefore,
         "date": currentDate,
         "requestId": requestId,
         "patientName": patientName,
@@ -56,7 +58,7 @@ class ShareRecordCubit extends Cubit<ShareRecordState> {
           .set({
         "senderId": FirebaseAuth.instance.currentUser!.uid,
         'recieverId':receiverDoctorID,
-        "DoctorsSharedThisRecord": false,
+        "DoctorsSharedThisRecord": isSharedBefore,
         "recordId": recordId,
         "date": currentDate,
         "requestId": requestId,

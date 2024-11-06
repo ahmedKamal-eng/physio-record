@@ -14,12 +14,12 @@ class GetUserDataCubit extends Cubit<GetUserDataState> {
 
    UserModel? userModel;
 
-  getUserData() {
+ Future<void> getUserData()async {
     emit(GetUserDataLoading());
 
     try{
 
-      FirebaseFirestore.instance
+    await  FirebaseFirestore.instance
           .collection("users")
           .doc(FirebaseAuth.instance.currentUser!.uid)
           .get()

@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:physio_record/AddFollowUpItem/AddFollowUpCubit/add_follow_up_states.dart';
+import 'package:physio_record/Cubits/GetUserDataCubit/get_user_data_cubit.dart';
 import 'package:physio_record/global_vals.dart';
 import 'package:physio_record/models/patient_record.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,12 +22,12 @@ class AddFollowUpCubit extends Cubit<AddFollowUpState> {
       String? text,
       List<String>? imagePaths,
       List<String>? docPaths}) async {
+
+
     emit(AddFollowUpLoading());
     try {
       final List<ConnectivityResult> connectivityResult =
           await (Connectivity().checkConnectivity());
-
-
 
 
 

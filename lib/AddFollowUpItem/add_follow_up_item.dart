@@ -100,8 +100,8 @@ class _AddFollowUPItemScreenState extends State<AddFollowUPItemScreen> {
                               imagePaths!.isEmpty &&
                               docPaths!.isEmpty
                           ? null
-                          : () {
-                              BlocProvider.of<AddFollowUpCubit>(context)
+                          : ()async {
+                             await BlocProvider.of<AddFollowUpCubit>(context)
                                   .addFollowUpItem(
                                       patientRecord: widget.patientRecord,
                                       text: textController.text.trim(),
@@ -114,7 +114,7 @@ class _AddFollowUPItemScreenState extends State<AddFollowUPItemScreen> {
                               });
                               // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>FollowUPScreen(patientRecord: widget.patientRecord)));
                             },
-                      child:state is AddFollowUpLoading?Center(child: CircularProgressIndicator(),): Text('Save',style: TextStyle(color: Colors.white,fontSize: 18),),
+                      child:state is AddFollowUpLoading?Center(child: CircularProgressIndicator(),): Text('Save',style: TextStyle(color: Colors.white,fontSize: 16),),
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.teal,
                           padding: EdgeInsets.symmetric(

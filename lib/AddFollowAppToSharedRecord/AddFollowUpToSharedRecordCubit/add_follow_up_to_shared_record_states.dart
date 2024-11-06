@@ -1,0 +1,9 @@
+
+
+abstract class AddFollowUpToSharedRecordState{}
+
+class AddFollowUpToSharedRecordInitialState extends AddFollowUpToSharedRecordState{}
+
+class AddFollowUpToSharedRecordLoadingState extends AddFollowUpToSharedRecordState{}
+class AddFollowUpToSharedRecordSuccessState extends AddFollowUpToSharedRecordState{}
+class AddFollowUpToSharedRecordErrorState extends AddFollowUpToSharedRecordState{}

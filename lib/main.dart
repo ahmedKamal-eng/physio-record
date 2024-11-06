@@ -6,10 +6,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:physio_record/AddRecordScreen/AddRecordCubit/add_record_cubit.dart';
+import 'package:physio_record/AddToFriendScreen/AddToFriendCubit/add_to_friend_cubit.dart';
 import 'package:physio_record/Cubits/GetUserDataCubit/get_user_data_cubit.dart';
 import 'package:physio_record/HomeScreen/FetchAllRecord/fetch_record_cubit.dart';
 import 'package:physio_record/RecordDetailsScreen/EditRecordCubit/edit_record_cubit.dart';
 import 'package:physio_record/ShareRequestScreen/AcceptRequestCubit/accept_request_cubit.dart';
+import 'package:physio_record/SharedRecordScreen/DeleteSharedRecordCubit/delete_user_from_shared_record_cubit.dart';
 import 'package:physio_record/global_vals.dart';
 import 'package:physio_record/widgets/LogoutCubit/logout_cubit.dart';
 import 'AddFollowUpItem/AddFollowUpCubit/add_follow_up_cubit.dart';
@@ -52,6 +54,7 @@ void main() async {
           BlocProvider(create: (context) => ShareRecordCubit()),
           BlocProvider(create: (context) => AcceptRequestCubit()),
           BlocProvider(create: (context) => DeleteSharedRecordCubit()),
+          BlocProvider(create: (context) => AddToFriendCubit(),),
 
         ],
         child: MyApp(),
@@ -121,7 +124,7 @@ class MyApp extends StatelessWidget {
         // Other theme properties for dark mode
         // ...
       ),
-      themeMode: ThemeMode.system, // Use system theme mode (light or dark)
+      themeMode: ThemeMode.light, // Use system theme mode (light or dark)
       // initialRoute:  '/',
       home: SplashScreen(),
       // home: TestScreen(),

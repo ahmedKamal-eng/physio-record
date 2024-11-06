@@ -86,6 +86,14 @@ Future<void> deleteFile(String filePath) async {
   }
 }
 
+bool hasTimestampPassed(Timestamp timestamp) {
+  DateTime currentTime = DateTime.now(); // Get current date and time
+  DateTime givenTime = timestamp.toDate(); // Convert Firestore Timestamp to DateTime
+
+  // Return true if the given time is before the current time
+  return givenTime.isBefore(currentTime);
+}
+
 
 
 Future<List<String>> fetchAndDownloadFiles(String file,String recordId, String followUpId) async {

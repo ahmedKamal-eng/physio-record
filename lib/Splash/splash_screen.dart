@@ -1,9 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
+
 import 'package:physio_record/LoginScreen/login_screen.dart';
-import 'package:physio_record/sign_up_screen/sign_up_screen.dart';
 
 import '../Cubits/DeleteSharedRecordFromLocal/delete_shared_record_cubit.dart';
 import '../HomeScreen/home_screen.dart';
@@ -58,20 +57,28 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircleAvatar(
+
               radius: screenWidth * .34,
-              child: ClipOval(
-                  child: SvgPicture.asset(
-                'assets/images/splashimage.svg',
-                fit: BoxFit.cover,
-                width: screenWidth * .7,
-              )),
+
+              backgroundImage:AssetImage('assets/images/4033.jpg'),
+              // child: ClipOval(
+              //   child: Image.asset(
+              //     ,width: screenWidth * .7,
+              //     fit: BoxFit.cover,
+              //   ),
+              //
+                //   child: SvgPicture.asset(
+                // 'assets/images/splashimage.svg',
+                // fit: BoxFit.cover,
+                // width: screenWidth * .7,
+              // )
             ),
             AnimatedPadding(
               padding: EdgeInsets.only(top: screenHeight * paddingVal),
               duration: Duration(seconds: 1),
               child: Text(
                 "Physio Record",
-                style: Theme.of(context).textTheme.headlineLarge,
+                style: Theme.of(context).textTheme.headlineLarge!.copyWith(color: Colors.teal),
               ),
             ),
           ],

@@ -24,7 +24,7 @@ class PatientRecordAdapter extends TypeAdapter<PatientRecord> {
       program: fields[4] as String,
       followUpList: (fields[5] as List).cast<FollowUp>(),
       id: fields[6] as String,
-      onlyInLocal: fields[7] as bool,
+      onlyInLocal: fields[7] as bool?,
       updatedInLocal: fields[8] as bool,
       followUpIdsOnlyInLocal: (fields[9] as List).cast<String>(),
       followUpIdsUpdatedOnlyInLocal: (fields[10] as List).cast<String>(),
@@ -86,6 +86,7 @@ class FollowUpAdapter extends TypeAdapter<FollowUp> {
       image: (fields[2] as List?)?.cast<String>(),
       docPath: (fields[3] as List?)?.cast<String>(),
       id: fields[4] as String,
+      doctorName: fields[7] as String?,
       onlyInLocal: fields[5] as bool,
       updatedInLocal: fields[6] as bool,
     );
@@ -94,7 +95,7 @@ class FollowUpAdapter extends TypeAdapter<FollowUp> {
   @override
   void write(BinaryWriter writer, FollowUp obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.date)
       ..writeByte(1)
@@ -108,7 +109,9 @@ class FollowUpAdapter extends TypeAdapter<FollowUp> {
       ..writeByte(5)
       ..write(obj.onlyInLocal)
       ..writeByte(6)
-      ..write(obj.updatedInLocal);
+      ..write(obj.updatedInLocal)
+      ..writeByte(7)
+      ..write(obj.doctorName);
   }
 
   @override

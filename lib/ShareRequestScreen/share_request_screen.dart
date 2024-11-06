@@ -16,6 +16,7 @@ class _ShareRequestScreenState extends State<ShareRequestScreen> {
       .collection("users")
       .doc(FirebaseAuth.instance.currentUser!.uid)
       .collection('shareRequests')
+  .orderBy('date',descending: true)
       .snapshots();
 
   @override

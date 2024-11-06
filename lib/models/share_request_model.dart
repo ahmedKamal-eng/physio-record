@@ -36,7 +36,7 @@ final List<String> doctorIds;
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return ShareRequestModel(
       date: convertTimestampToString(data['date']),
-      doctorIds:  List<String>.from(data['doctorIds'] ?? []) ?? [],
+      doctorIds:  List<String>.from(data['doctorIds'] ?? []),
       doctorsSharedThisRecord: data['doctorsSharedThisRecord'] ?? false,
       diagnosis: data['diagnosis'] ?? '',
       doctorImage: data['doctorImage'] ?? '',

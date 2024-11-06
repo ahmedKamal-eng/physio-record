@@ -58,8 +58,7 @@ class ShareRequestCard extends StatelessWidget {
                       msg: state.error,
                       backgroundColor: Colors.redAccent,
                     );
-                    print(state.error +
-                        "33333333333333333333333333333333333333333333333");
+                    print(state.error + "33333333333333333333333");
                   }
 
                   if (state is AcceptRequestSuccess) {

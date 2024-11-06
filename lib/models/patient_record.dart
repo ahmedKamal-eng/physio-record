@@ -91,6 +91,8 @@ class FollowUp {
   late bool onlyInLocal;
   @HiveField(6)
   late bool updatedInLocal;
+  @HiveField(7)
+  String? doctorName;
 
   FollowUp(
       {required this.date,
@@ -98,6 +100,7 @@ class FollowUp {
       this.image,
       this.docPath,
       required this.id,
+       this.doctorName,
       this.onlyInLocal = false,
       this.updatedInLocal = false});
 
@@ -107,6 +110,7 @@ class FollowUp {
         date= convertTimestampToString(data['date']);
         text= data['text'];
         id= data['id'];
+        doctorName=data['doctorName'] ?? '';
         image=List<String>.from(data['image']);
         docPath=List<String>.from(data['docPaths']);
         // docPath= fetchAndDownloadFiles('docs', data['RecordId'], data['RecordId']);

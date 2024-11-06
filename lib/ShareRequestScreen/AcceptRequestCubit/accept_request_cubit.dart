@@ -12,33 +12,74 @@ class AcceptRequestCubit extends Cubit<AcceptRequestState> {
 
   PatientRecord? sharedRecord;
   List<FollowUp> followUpList = [];
+  List<String> doctorIds = [];
 
-  Future<void> getSharedRecord(ShareRequestModel requestModel) async {
-    followUpList = [];
-    await FirebaseFirestore.instance
-        .collection("users")
-        .doc(requestModel.senderId)
-        .collection("records")
-        .doc(requestModel.recordId)
-        .get()
-        .then((val) {
-      sharedRecord = PatientRecord.fromFirestore(val);
-    });
-
-    await FirebaseFirestore.instance
+  Future<void> getDoctorsIds(ShareRequestModel requestModel) async {
+    FirebaseFirestore.instance
         .collection('users')
         .doc(requestModel.senderId)
-        .collection('records')
+        .collection('sharedRecords')
         .doc(requestModel.recordId)
-        .collection('followUp')
         .get()
         .then((val) {
-      if (val.docs.isNotEmpty) {
-        for (int i = 0; i < val.docs.length; i++) {
-          followUpList.add(FollowUp.fromFirestore(val.docs[i]));
-        }
-      }
+      doctorIds = List<String>.from(val.data()!['doctorsIds']);
     });
+  }
+
+  Future<void> getSharedRecord(ShareRequestModel requestModel) async {
+    if (requestModel.doctorsSharedThisRecord) {
+      followUpList = [];
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(requestModel.senderId)
+          .collection("sharedRecords")
+          .doc(requestModel.recordId)
+          .get()
+          .then((val) {
+        sharedRecord = PatientRecord.fromFirestore(val);
+      });
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(requestModel.senderId)
+          .collection('sharedRecords')
+          .doc(requestModel.recordId)
+          .collection('followUp')
+          .get()
+          .then((val) {
+        if (val.docs.isNotEmpty) {
+          for (int i = 0; i < val.docs.length; i++) {
+            followUpList.add(FollowUp.fromFirestore(val.docs[i]));
+          }
+        }
+      });
+    } else {
+      followUpList = [];
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(requestModel.senderId)
+          .collection("records")
+          .doc(requestModel.recordId)
+          .get()
+          .then((val) {
+        sharedRecord = PatientRecord.fromFirestore(val);
+      });
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(requestModel.senderId)
+          .collection('records')
+          .doc(requestModel.recordId)
+          .collection('followUp')
+          .get()
+          .then((val) {
+        if (val.docs.isNotEmpty) {
+          for (int i = 0; i < val.docs.length; i++) {
+            followUpList.add(FollowUp.fromFirestore(val.docs[i]));
+          }
+        }
+      });
+    }
   }
 
   Future<void> addSharedRecord(ShareRequestModel requestModel) async {
@@ -79,7 +120,7 @@ class AcceptRequestCubit extends Cubit<AcceptRequestState> {
                   .set({
                 'id': followUpList[i].id,
                 'RecordId': sharedRecord!.id,
-                'date': followUpList[i].date,
+                'date': convertStringToTimestamp(followUpList[i].date),
                 'text': followUpList[i].text ?? "",
                 "image": followUpList[i].image,
                 "docPaths": followUpList[i].docPath,
@@ -117,7 +158,7 @@ class AcceptRequestCubit extends Cubit<AcceptRequestState> {
                   .set({
                 'id': followUpList[i].id,
                 'RecordId': sharedRecord!.id,
-                'date': followUpList[i].date,
+                'date': convertStringToTimestamp(followUpList[i].date),
                 'text': followUpList[i].text ?? "",
                 "image": followUpList[i].image,
                 "docPaths": followUpList[i].docPath,
@@ -127,9 +168,7 @@ class AcceptRequestCubit extends Cubit<AcceptRequestState> {
             }
           });
         } else {
-          // user don't share for first time
-
-          List<String> doctorIds = requestModel.doctorIds;
+          // user  share this record for more than one time
 
           await FirebaseFirestore.instance
               .collection('users')
@@ -145,6 +184,7 @@ class AcceptRequestCubit extends Cubit<AcceptRequestState> {
             'program': sharedRecord!.program,
             'doctorsIds': [...doctorIds, FirebaseAuth.instance.currentUser!.uid]
           }).then((_) {
+
             for (int i = 0; i < followUpList.length; i++) {
               FirebaseFirestore.instance
                   .collection('users')
@@ -156,17 +196,69 @@ class AcceptRequestCubit extends Cubit<AcceptRequestState> {
                   .set({
                 'id': followUpList[i].id,
                 'RecordId': sharedRecord!.id,
-                'date': followUpList[i].date,
+                'date': convertStringToTimestamp(followUpList[i].date),
                 'text': followUpList[i].text ?? "",
                 "image": followUpList[i].image,
                 "docPaths": followUpList[i].docPath,
-                "doctorName": requestModel.doctorName,
+                "doctorName": followUpList[i].doctorName,
                 "doctorId": requestModel.senderId
               });
             }
           });
         }
       });
+
+      await getDoctorsIds(requestModel).whenComplete(() {
+        Set<String> doctorsSet=[...doctorIds, FirebaseAuth.instance.currentUser!.uid].toSet();
+        List<String> doctorsIdList =doctorsSet.toList();
+        for (var id in doctorsIdList) {
+          FirebaseFirestore.instance
+              .collection('users')
+              .doc(id)
+              .collection('sharedRecords')
+              .doc(requestModel.recordId)
+              .update({
+            'doctorsIds': doctorsIdList
+          });
+        }
+      });
+
+      // add doctors to your friend collection
+      for (String doctorId in [
+        ...doctorIds,
+        FirebaseAuth.instance.currentUser!.uid
+      ]) {
+        DocumentReference docRef =
+            await FirebaseFirestore.instance.collection('users').doc(doctorId);
+
+        for (String id in [
+          ...doctorIds,
+          FirebaseAuth.instance.currentUser!.uid
+        ]) {
+          if (id != doctorId) {
+            String? image;
+            String? name;
+            String? medicalSpecialization;
+
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(id)
+                .get()
+                .then((val) {
+              image = val.data()!['imageUrl'];
+              name = val.data()!['userName'];
+              medicalSpecialization = val.data()!['medicalSpecialization'];
+            });
+
+            await docRef.collection('friends').doc(id).set({
+              "id": id,
+              'image': image,
+              'name': name,
+              'medicalSpecialization': medicalSpecialization
+            });
+          }
+        }
+      }
       emit(AcceptRequestSuccess());
     } catch (e) {
       emit(AcceptRequestError(e.toString()));

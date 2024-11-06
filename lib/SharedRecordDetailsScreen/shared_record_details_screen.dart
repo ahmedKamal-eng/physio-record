@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:physio_record/AddFollowAppToSharedRecord/add_follow_up_to_shared_record.dart';
 import 'package:physio_record/SharedRecordDetailsScreen/widgets/shared_follow_up_item.dart';
 import 'package:physio_record/models/shared_follow_up_model.dart';
 import 'package:physio_record/models/shared_record_model.dart';
@@ -25,6 +26,7 @@ class _SharedRecordDetailsScreenState extends State<SharedRecordDetailsScreen> {
         .collection('sharedRecords')
         .doc(widget.sharedRecordModel.id)
         .collection('followUp')
+         .orderBy('date',descending: false)
         .snapshots();
 
     super.initState();
@@ -106,14 +108,17 @@ class _SharedRecordDetailsScreenState extends State<SharedRecordDetailsScreen> {
                 }
 
                 return ListView.builder(
-                  shrinkWrap: true,
+                    shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                     itemCount: snapshot.data!.docs.length,
                     itemBuilder: (context, index) {
-                        SharedFollowUpModel followUp=  SharedFollowUpModel.fromFirestore(snapshot.data!.docs[index]);
+                      SharedFollowUpModel followUp =
+                          SharedFollowUpModel.fromFirestore(
+                              snapshot.data!.docs[index]);
                       return SharedFollowUpItem(followUp: followUp);
                     });
-              })
+              }),
+          SizedBox(height: 100,)
         ],
       ),
       floatingActionButton: ElevatedButton(
@@ -127,9 +132,11 @@ class _SharedRecordDetailsScreenState extends State<SharedRecordDetailsScreen> {
           style: TextStyle(color: Colors.white, fontSize: 20),
         ),
         onPressed: () {
-
-
-
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AddFollowUpItemToSharedRecord(
+                      sharedRecordModel: widget.sharedRecordModel)));
         },
       ),
     );

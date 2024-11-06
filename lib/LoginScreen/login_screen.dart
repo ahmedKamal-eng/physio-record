@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive/hive.dart';
 import 'package:physio_record/FetchRecordFromFireStore/fetch_record_from_fire_store_screen.dart';
@@ -23,6 +24,28 @@ class _LoginScreenState extends State<LoginScreen> {
   String _email = '';
   String _password = '';
   bool _isLoading = false;
+
+  void checkIfEmailExistsAndResetPassword(String email) async {
+    try {
+      // Fetch sign-in methods for the email
+      List<String> signInMethods =
+      await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+
+      // Check if the email is registered
+      if (signInMethods.isNotEmpty) {
+        // Email is registered, send reset password email
+        await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+        print('Password reset email sent.');
+      } else {
+        // Email is not registered
+        print('This email is not signed up.');
+      }
+    } catch (e) {
+      // Handle any errors (e.g., invalid email format)
+      print('Error: $e');
+    }
+  }
+
 
   _fetchRecordsThatNotStoredLocally()async{
     CollectionReference collectionRef = FirebaseFirestore.instance
@@ -163,6 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
     Size size = MediaQuery.of(context).size;
 
     return Scaffold(
+      backgroundColor: Colors.teal,
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: _isLoading
@@ -180,7 +204,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       Padding(
                         padding: const EdgeInsets.all(18.0),
                         child: TextFormField(
-                          decoration: InputDecoration(labelText: 'Email'),
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            // Change the default border color when the TextField is enabled
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              // Change the border color when the TextField is focused
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              //
+                              labelText: 'Email',labelStyle: TextStyle(color: Colors.white)),
                           keyboardType: TextInputType.emailAddress,
                           validator: (value) {
                             if (value == null ||
@@ -198,7 +233,20 @@ class _LoginScreenState extends State<LoginScreen> {
                       Padding(
                         padding: const EdgeInsets.all(18.0),
                         child: TextFormField(
-                          decoration: InputDecoration(labelText: 'Password'),
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            // Change the default border color when the TextField is enabled
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              // Change the border color when the TextField is focused
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              //
+                              labelText: 'Password',
+                             labelStyle: TextStyle(color: Colors.white)
+                          ),
                           obscureText: true,
                           validator: (value) {
                             if (value == null ||
@@ -217,7 +265,7 @@ class _LoginScreenState extends State<LoginScreen> {
               
                       ElevatedButton(
                         onPressed: _login,
-                        child: Text('Login'),
+                        child: Text('Login',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
                       ),
                       SizedBox(height: size.height * 0.07),
               
@@ -232,7 +280,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       // }),
               
                       TextButton(
-                          onPressed: () {}, child: Text("Forget Password")),
+                          onPressed: ()async {
+                            if(_email.isNotEmpty) {
+                              try {
+                                await FirebaseAuth.instance
+                                    .sendPasswordResetEmail(email: _email);
+                                Fluttertoast.showToast(
+                                    msg: "We Send Message to Your Email");
+                              } catch (e) {
+                                Fluttertoast.showToast(msg: e.toString());
+                              }
+                            }else{
+                              Fluttertoast.showToast(
+                                  msg: "Please Enter Your Email");
+                            }
+                            
+                            
+                          }, child: Text("Forget Password",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 20),)),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -244,7 +308,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     MaterialPageRoute(
                                         builder: (context) => SignUpScreen()));
                               },
-                              child: Text("Sign up"))
+                              child: Text("Sign up",style: TextStyle(color: Colors.white,fontSize: 20,fontWeight: FontWeight.bold),))
                         ],
                       )
                     ],

@@ -3,32 +3,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:physio_record/SearchForDoctorsScreen/ShareRecordCubit/share_record_cubit.dart';
-import 'package:physio_record/SearchForDoctorsScreen/ShareRecordCubit/share_record_state.dart';
-import 'package:physio_record/models/patient_record.dart';
+import 'package:physio_record/AddToFriendScreen/AddToFriendCubit/add_to_friend_cubit.dart';
+import 'package:physio_record/AddToFriendScreen/AddToFriendCubit/add_to_friend_states.dart';
 
-class UserSearchDelegate extends SearchDelegate<String> {
-  final PatientRecord patientRecord;
-  List<String> doctorsIds;
-  final isSharedBefore;
-  UserSearchDelegate(
-      {required this.patientRecord, required this.isSharedBefore,required this.doctorsIds});
+class AddToFriendScreen extends SearchDelegate<String> {
+  List<String> friendIds;
+  AddToFriendScreen({required this.friendIds});
 
   // Firestore reference
   final CollectionReference usersCollection =
       FirebaseFirestore.instance.collection('users');
 
-
-
-
-
-
   // Override the `buildSuggestions` method to show the results while typing
   @override
   Widget buildSuggestions(BuildContext context) {
-
-
-
     if (query.isEmpty) {
       return Center(child: Text('Start typing to search...'));
     }
@@ -41,7 +29,7 @@ class UserSearchDelegate extends SearchDelegate<String> {
           .where('userNameLowerCase',
               isLessThanOrEqualTo: query.toLowerCase() + '\uf8ff')
           .get(),
-      builder: (context, snapshot){
+      builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         }
@@ -50,7 +38,7 @@ class UserSearchDelegate extends SearchDelegate<String> {
           return Center(child: Text('No results found.'));
         }
 
-         var results = snapshot.data!.docs;
+        var results = snapshot.data!.docs;
         // if (isSharedBefore) {
         //   FirebaseFirestore.instance
         //       .collection('users')
@@ -73,23 +61,23 @@ class UserSearchDelegate extends SearchDelegate<String> {
 
         return ListView.builder(
           itemCount: results.length,
-          itemBuilder: (context, index)  {
+          itemBuilder: (context, index) {
             var user = results[index];
 
+            if (friendIds.contains(user['id'])) {
+              return Container();
+            }
 
-            if(doctorsIds.contains(user['id']))
-              {
-                return Container();
-              }
             return Padding(
               padding: const EdgeInsets.all(8.0),
-              child: BlocConsumer<ShareRecordCubit, ShareRecordState>(
+              child: BlocConsumer<AddToFriendCubit, AddToFriendState>(
                   listener: (context, state) {
-                if (state is ShareRecordSuccess) {
-                  Navigator.pop(context);
+                if (state is AddToFriendSuccess) {
+
                   Navigator.pop(context);
                   Fluttertoast.showToast(
-                      msg: "Your request sent successfully",
+                      msg:
+                          "Dr.${user['userName']} added to your friends successfully",
                       backgroundColor: Colors.teal);
                 }
               }, builder: (context, state) {
@@ -99,31 +87,25 @@ class UserSearchDelegate extends SearchDelegate<String> {
                         context: context,
                         builder: (context) {
                           return AlertDialog(
-                            title: state is ShareRecordLoading
+                            title: state is AddToFriendLoading
                                 ? Center(
                                     child: CircularProgressIndicator(),
                                   )
                                 : Text(
-                                    "You want to share this record with ${user['userName']}"),
-                            actions: state is ShareRecordLoading
+                                    "You want to add Dr.${user['userName']} to your friends"),
+                            actions: state is AddToFriendLoading
                                 ? []
                                 : [
                                     ElevatedButton(
                                         onPressed: () {
-                                          BlocProvider.of<ShareRecordCubit>(
+                                          BlocProvider.of<AddToFriendCubit>(
                                                   context)
-                                              .shareRecord(
-                                                  context: context,
-                                                  recordId: patientRecord.id,
-                                                  patientName:
-                                                      patientRecord.patientName,
-                                                  receiverDoctorName:
-                                                      user['userName'],
-                                                  receiverDoctorID: user['id'],
-                                                  diagnosis:
-                                                      patientRecord.diagnosis,
-                                                  isSharedBefore:
-                                                      isSharedBefore);
+                                              .addUserToFriend(
+                                                  id: user['id'],
+                                                  name: user['userName'],
+                                                  img: user['imageUrl'],
+                                                  medicalSpecialization: user[
+                                                      'medicalSpecialization']);
                                         },
                                         child: Text("Yes")),
                                     ElevatedButton(
@@ -155,7 +137,8 @@ class UserSearchDelegate extends SearchDelegate<String> {
                                     Theme.of(context).textTheme.headlineMedium,
                               ),
                               Text(user['email']),
-                              Text(user['medicalSpecialization'])
+                              Text(user['medicalSpecialization']),
+
                             ],
                           )
                         ],

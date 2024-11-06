@@ -17,6 +17,7 @@ import 'package:physio_record/SearchScreen/search_screen.dart';
 import 'package:physio_record/Splash/splash_screen.dart';
 import 'package:physio_record/global_vals.dart';
 import 'package:physio_record/models/patient_record.dart';
+import 'package:physio_record/models/user_model.dart';
 import 'package:physio_record/widgets/my_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -27,6 +28,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+   bool isEndTimePassed=false;
   // List<ConnectivityResult>? connectivityResult;
   //
   // initialConnectivity() async {
@@ -55,6 +57,19 @@ class _HomeScreenState extends State<HomeScreen> {
     final List<ConnectivityResult> connectivityResult =
         await (Connectivity().checkConnectivity());
     if (!connectivityResult.contains(ConnectivityResult.none)) {
+
+      await BlocProvider.of<GetUserDataCubit>(context).getUserData();
+
+
+      UserModel currentUser=BlocProvider.of<GetUserDataCubit>(context).userModel!;
+
+
+      isEndTimePassed=hasTimestampPassed(convertStringToTimestamp(currentUser.endTime));
+      setState(() {
+
+        });
+
+
      await BlocProvider.of<FetchRecordCubit>(context)
           .uploadLocalRecordsToFirestore();
      await BlocProvider.of<FetchRecordCubit>(context).updateRecordInFirestore();
@@ -63,7 +78,6 @@ class _HomeScreenState extends State<HomeScreen> {
      await BlocProvider.of<DeleteSharedRecordCubit>(context)
           .deleteSharedRecordFromUserRecordsInLocalAndFirestore();
 
-     await BlocProvider.of<GetUserDataCubit>(context).getUserData();
 
     }
 
@@ -83,7 +97,11 @@ class _HomeScreenState extends State<HomeScreen> {
     bool isDark =
         Theme.of(context).brightness == Brightness.dark ? true : false;
 
-    return Scaffold(
+    return isEndTimePassed ?Scaffold(
+      body: Center(
+        child: Text('Your subscription has expired.'),
+      ),
+    ):Scaffold(
       drawer: MyDrawer(),
       appBar: AppBar(
         // leading: IconButton(
@@ -170,9 +188,9 @@ class _HomeScreenState extends State<HomeScreen> {
               if (BlocProvider.of<FetchRecordCubit>(context).isFiltered)
                 SizedBox(
                   height: BlocProvider.of<FetchRecordCubit>(context)
-                              .filteredPatientRecords!
-                              .length <=
-                          3
+                      .filteredPatientRecords!
+                      .length <=
+                      3
                       ? MediaQuery.of(context).size.height * .4
                       : MediaQuery.of(context).size.height * .7,
                   child: ListView.builder(
@@ -188,8 +206,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding: EdgeInsets.all(10),
                             child: RecordCard(
                               patient:
-                                  BlocProvider.of<FetchRecordCubit>(context)
-                                      .filteredPatientRecords![index],
+                              BlocProvider.of<FetchRecordCubit>(context)
+                                  .filteredPatientRecords![index],
                               patientIndex: index,
                             ),
                           ),

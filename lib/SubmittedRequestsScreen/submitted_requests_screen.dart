@@ -18,6 +18,7 @@ class _SubmittedRequestsScreenState extends State<SubmittedRequestsScreen> {
       .collection("users")
       .doc(FirebaseAuth.instance.currentUser!.uid)
       .collection('submittedRequests')
+  .orderBy('date',descending: true)
       .snapshots();
 
   @override
@@ -40,7 +41,7 @@ class _SubmittedRequestsScreenState extends State<SubmittedRequestsScreen> {
           }
 
           return ListView.builder(
-            reverse: true,
+            
             itemBuilder: (context, index) {
               Map<String, dynamic> data =
                   snapshot.data!.docs[index].data() as Map<String, dynamic>;
@@ -103,7 +104,7 @@ class _SubmittedRequestsScreenState extends State<SubmittedRequestsScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      "Dr.${data['doctorName']} accept your request. You con found ${data['patientName']} record in Shared Record Section",
+                      "Dr.${data['doctorName']} accept your request. You can found ${data['patientName']} record in Shared Record Section",
                       style: Theme.of(context)
                           .textTheme
                           .headlineMedium!
