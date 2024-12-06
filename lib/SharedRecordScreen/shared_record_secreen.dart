@@ -186,6 +186,11 @@ class SharedRecordScreen extends StatelessWidget {
                                                   'this record deleted successfully');
                                           Navigator.pop(context);
                                         }
+                                        if(state is DeleteSharedRecordError)
+                                          {
+                                            print(state.error);
+                                            Navigator.pop(context);
+                                          }
                                       }, builder: (context, state) {
                                         return AlertDialog(
                                           title: state

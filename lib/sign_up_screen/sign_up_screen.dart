@@ -217,7 +217,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           //
 
-                          labelText: 'UserName',labelStyle: TextStyle(color: Colors.white),),
+                          labelText: 'Full Name',labelStyle: TextStyle(color: Colors.white),),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter a valid User Name ';
@@ -323,7 +323,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         onPressed: _signUp,
                         child: Text('Sign Up',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
                       ),
-                      SizedBox(height: size.height *.1,),
+                      SizedBox(height: size.height *.05,),
         
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -331,7 +331,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         
                           Text("Already have an account"),
                           TextButton(onPressed: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginScreen()));
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>LoginScreen()));
                           }, child: Text("Login",style: TextStyle(color: Colors.white,fontSize: 20),))
                         ],
                       )

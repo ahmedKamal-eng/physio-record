@@ -199,19 +199,6 @@ class FullScreenImage extends StatelessWidget {
       ),
     ));
 
-    // Scaffold(
-    // body: Container(
-    //   constraints: BoxConstraints.expand(
-    //     height: MediaQuery.of(context).size.height,
-    //   ),
-    //   child: PhotoView(
-    //     imageProvider: FileImage(File(imageUrl)),
-    //     minScale: PhotoViewComputedScale.contained * 0.8,
-    //     maxScale: PhotoViewComputedScale.covered * 4,
-    //     initialScale: PhotoViewComputedScale.contained,
-    //     heroAttributes: PhotoViewHeroAttributes(tag: imageUrl),
-    //   ),
-    // ),
-    // );
+
   }
 }

@@ -11,7 +11,8 @@ import 'expandable_text.dart';
 
 class FollowUpItemCard extends StatelessWidget {
   FollowUp followUp;
-  FollowUpItemCard({required this.followUp});
+  bool internetConnection;
+  FollowUpItemCard({required this.followUp,required this.internetConnection});
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +48,7 @@ class FollowUpItemCard extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              FullScreenImage(followUp.image!)));
+                              FullScreenImage(internetConnection: internetConnection, imageUrlList: followUp.image!,)));
                 },
                 child: Container(
                   height: 200,
@@ -154,9 +155,12 @@ class FollowUpItemCard extends StatelessWidget {
 }
 
 class FullScreenImage extends StatelessWidget {
-  final List<String> imageUrlList;
+   List<String> imageUrlList;
+   bool internetConnection;
 
-  FullScreenImage(this.imageUrlList);
+
+
+  FullScreenImage({required this.imageUrlList,required this.internetConnection});
 
   @override
   Widget build(BuildContext context) {
@@ -164,12 +168,24 @@ class FullScreenImage extends StatelessWidget {
         child: PhotoViewGallery.builder(
       scrollPhysics: BouncingScrollPhysics(),
       builder: (BuildContext context, int index) {
-        return PhotoViewGalleryPageOptions(
-          imageProvider: FileImage(File(imageUrlList![index])),
-          initialScale: PhotoViewComputedScale.contained,
-          heroAttributes: PhotoViewHeroAttributes(tag: imageUrlList![index]),
-        );
-      },
+
+        if (internetConnection) {
+          return PhotoViewGalleryPageOptions(
+            imageProvider: NetworkImage(imageUrlList[index]),
+            initialScale:
+            PhotoViewComputedScale.contained,
+            heroAttributes: PhotoViewHeroAttributes(
+                tag: imageUrlList[index]),
+          );
+        }
+        else {
+          return PhotoViewGalleryPageOptions(
+            imageProvider: FileImage(File(imageUrlList![index])),
+            initialScale: PhotoViewComputedScale.contained,
+            heroAttributes: PhotoViewHeroAttributes(tag: imageUrlList![index]),
+          );
+        }
+        },
       itemCount: imageUrlList!.length,
       loadingBuilder: (context, event) => Center(
         child: Container(
@@ -179,20 +195,5 @@ class FullScreenImage extends StatelessWidget {
         ),
       ),
     ));
-
-    // Scaffold(
-    // body: Container(
-    //   constraints: BoxConstraints.expand(
-    //     height: MediaQuery.of(context).size.height,
-    //   ),
-    //   child: PhotoView(
-    //     imageProvider: FileImage(File(imageUrl)),
-    //     minScale: PhotoViewComputedScale.contained * 0.8,
-    //     maxScale: PhotoViewComputedScale.covered * 4,
-    //     initialScale: PhotoViewComputedScale.contained,
-    //     heroAttributes: PhotoViewHeroAttributes(tag: imageUrl),
-    //   ),
-    // ),
-    // );
   }
 }

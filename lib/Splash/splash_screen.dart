@@ -17,6 +17,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   double paddingVal = .4;
 
+
   @override
   void initState() {
 
@@ -24,12 +25,19 @@ class _SplashScreenState extends State<SplashScreen> {
       BlocProvider.of<DeleteSharedRecordCubit>(context).getSharedRecordAndAcceptedRequestsIds();
     }
 
-    Future.delayed(Duration(milliseconds: 400), () {
-      paddingVal = 0.05;
+    Future.delayed(Duration(seconds: 2), () {
+
+
+      paddingVal = 0;
+
+
+
+
 
       setState(() {});
 
-      Future.delayed(Duration(seconds: 2), () {
+       Future.delayed(Duration(seconds: 1), () {
+
         if (FirebaseAuth.instance.currentUser == null) {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => LoginScreen()));
@@ -49,39 +57,48 @@ class _SplashScreenState extends State<SplashScreen> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      body: Container(
-        height: screenHeight,
-        width: screenWidth,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircleAvatar(
+      body: AnimatedPadding(
+        duration: Duration(seconds: 1),
+        padding:  EdgeInsets.only(bottom: screenHeight * paddingVal),
+        child: Container(
+          height: screenHeight,
+          width: screenWidth,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
 
-              radius: screenWidth * .34,
+                radius: screenWidth * .34,
 
-              backgroundImage:AssetImage('assets/images/4033.jpg'),
-              // child: ClipOval(
-              //   child: Image.asset(
-              //     ,width: screenWidth * .7,
-              //     fit: BoxFit.cover,
-              //   ),
-              //
-                //   child: SvgPicture.asset(
-                // 'assets/images/splashimage.svg',
-                // fit: BoxFit.cover,
-                // width: screenWidth * .7,
-              // )
-            ),
-            AnimatedPadding(
-              padding: EdgeInsets.only(top: screenHeight * paddingVal),
-              duration: Duration(seconds: 1),
-              child: Text(
-                "Physio Record",
-                style: Theme.of(context).textTheme.headlineLarge!.copyWith(color: Colors.teal),
+                backgroundImage:AssetImage('assets/images/4033.jpg'),
+                child: CircleAvatar(
+                  radius: screenWidth * .34,
+                  backgroundColor: Colors.teal.withOpacity(.5),
+                ),
+                // child: ClipOval(
+                //   child: Image.asset(
+                //     ,width: screenWidth * .7,
+                //     fit: BoxFit.cover,
+                //   ),
+                //
+                  //   child: SvgPicture.asset(
+                  // 'assets/images/splashimage.svg',
+                  // fit: BoxFit.cover,
+                  // width: screenWidth * .7,
+                // )
               ),
-            ),
-          ],
+            Padding(
+                // padding: EdgeInsets.only(top: screenHeight * paddingVal),
+                padding: EdgeInsets.only(top: screenHeight * .05),
+                // duration: Duration(seconds: 2),
+                child: Text(
+                  "Physio Record",
+                  style: Theme.of(context).textTheme.headlineLarge!.copyWith(color: Colors.teal.withOpacity(.5),fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

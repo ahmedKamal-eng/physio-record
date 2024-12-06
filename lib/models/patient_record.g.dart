@@ -26,6 +26,10 @@ class PatientRecordAdapter extends TypeAdapter<PatientRecord> {
       id: fields[6] as String,
       onlyInLocal: fields[7] as bool?,
       updatedInLocal: fields[8] as bool,
+      isShared: fields[11] as bool?,
+      doctorsId: (fields[12] as List).cast<String>(),
+      rayImages: (fields[13] as List).cast<String>(),
+      raysPDF: (fields[14] as List).cast<String>(),
       followUpIdsOnlyInLocal: (fields[9] as List).cast<String>(),
       followUpIdsUpdatedOnlyInLocal: (fields[10] as List).cast<String>(),
     );
@@ -34,7 +38,7 @@ class PatientRecordAdapter extends TypeAdapter<PatientRecord> {
   @override
   void write(BinaryWriter writer, PatientRecord obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.patientName)
       ..writeByte(1)
@@ -56,7 +60,15 @@ class PatientRecordAdapter extends TypeAdapter<PatientRecord> {
       ..writeByte(9)
       ..write(obj.followUpIdsOnlyInLocal)
       ..writeByte(10)
-      ..write(obj.followUpIdsUpdatedOnlyInLocal);
+      ..write(obj.followUpIdsUpdatedOnlyInLocal)
+      ..writeByte(11)
+      ..write(obj.isShared)
+      ..writeByte(12)
+      ..write(obj.doctorsId)
+      ..writeByte(13)
+      ..write(obj.rayImages)
+      ..writeByte(14)
+      ..write(obj.raysPDF);
   }
 
   @override

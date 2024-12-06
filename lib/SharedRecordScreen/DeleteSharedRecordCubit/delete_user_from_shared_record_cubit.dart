@@ -12,6 +12,8 @@ class DeleteUserFromSharedRecordCubit
 
     try {
       doctorIds.remove(FirebaseAuth.instance.currentUser!.uid);
+      Set<String> ids=doctorIds.toSet();
+
 
       for (int i = 0; i < doctorIds.length; i++) {
         await FirebaseFirestore.instance
@@ -19,13 +21,14 @@ class DeleteUserFromSharedRecordCubit
             .doc(doctorIds[i])
             .collection('sharedRecords')
             .doc(recordId)
-            .update({'doctorsIds': doctorIds});
+            .update({'doctorsIds': ids.toList()});
       }
 
       await deleteSharedRecordDocumentAndItsSubCollection(recordId);
       emit(DeleteSharedRecordSuccess());
     } catch (e) {
-      emit(DeleteSharedRecordError());
+      emit(DeleteSharedRecordError(error: e.toString()));
+      print(e.toString() +" UUUUUUUUUU");
     }
   }
 
@@ -38,16 +41,21 @@ class DeleteUserFromSharedRecordCubit
         .doc(recordId);
     final batch = FirebaseFirestore.instance.batch();
 
-    // Delete the document
-    batch.delete(docRef);
+    try {
+      // Delete the document
+      batch.delete(docRef);
 
-    // Recursively delete subcollection
-    final subcollectionRef = docRef.collection('followUp');
-    final docs = await subcollectionRef.get();
-    for (final doc in docs.docs) {
-      batch.delete(doc.reference);
+      // Recursively delete subcollection
+      final subcollectionRef = docRef.collection('followUp');
+      final docs = await subcollectionRef.get();
+      if (docs != null || docs.docs.isNotEmpty) {
+        for (final doc in docs.docs) {
+          batch.delete(doc.reference);
+        }
+      }
+    }catch(e){
+      print(e.toString()+"^^delete_user_from_shared_record_cubit.dart 55");
     }
-
     return batch.commit();
   }
 }

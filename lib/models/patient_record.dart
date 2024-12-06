@@ -38,8 +38,22 @@ class PatientRecord extends HiveObject {
   @HiveField(10)
   List<String> followUpIdsUpdatedOnlyInLocal = [];
 
-  // @HiveField(11)
-  // bool? isShared;
+  @HiveField(11)
+  bool? isShared;
+
+  @HiveField(12)
+  List<String> doctorsId=[];
+
+  @HiveField(13)
+  List<String> rayImages=[];
+
+  @HiveField(14)
+  List<String> raysPDF=[];
+
+
+
+
+
 
   PatientRecord(
       {required this.patientName,
@@ -51,13 +65,30 @@ class PatientRecord extends HiveObject {
       required this.id,
       this.onlyInLocal = false,
       this.updatedInLocal = false,
+      this.isShared=false,
+      required this.doctorsId,
+      required this.rayImages,
+      required this.raysPDF,
       required this.followUpIdsOnlyInLocal,
       required this.followUpIdsUpdatedOnlyInLocal,
       f});
 
-  factory PatientRecord.fromFirestore(DocumentSnapshot doc) {
+  factory PatientRecord.fromFirestore(DocumentSnapshot doc)  {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    //  List<FollowUp>? followUpList;
+    // try {
+    //   doc.reference.collection('followUp').get().then((v) {
+    //     followUpList =
+    //         v.docs.map((followUpDoc) => FollowUp.fromFirestore(followUpDoc))
+    //             .toList();
+    //   });
+    // }catch(e)
+    // {
+    //   print("++++++++++patient Model:  "+e.toString());
+    // }
+
     return PatientRecord(
+        doctorsId: List<String>.from(data['doctorsIds'] ?? {}),
         patientName: data['patientName'],
         date:convertTimestampToString(data['date']),
         diagnosis: data['diagnosis'],
@@ -66,9 +97,14 @@ class PatientRecord extends HiveObject {
         followUpList: [],
         id: data['id'],
         onlyInLocal: false,
+        isShared: data['isShared'],
         followUpIdsOnlyInLocal: [],
-        followUpIdsUpdatedOnlyInLocal: []);
+        followUpIdsUpdatedOnlyInLocal: [],
+        rayImages: List<String>.from(data['rayImages'] ?? {}) ?? [],
+        raysPDF:List<String>.from(data['raysPDF'] ?? {}) ?? []
+    );
   }
+
 
 
 }
@@ -93,6 +129,7 @@ class FollowUp {
   late bool updatedInLocal;
   @HiveField(7)
   String? doctorName;
+
 
   FollowUp(
       {required this.date,

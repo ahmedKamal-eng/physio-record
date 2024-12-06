@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:physio_record/AddFollowUpItem/AddFollowUpCubit/add_follow_up_states.dart';
@@ -21,7 +22,9 @@ class AddFollowUpCubit extends Cubit<AddFollowUpState> {
       {required PatientRecord patientRecord,
       String? text,
       List<String>? imagePaths,
-      List<String>? docPaths}) async {
+      List<String>? docPaths,
+      required BuildContext context
+      }) async {
 
 
     emit(AddFollowUpLoading());
@@ -75,6 +78,7 @@ class AddFollowUpCubit extends Cubit<AddFollowUpState> {
             docURLs.add(downloadURL);
           }
         }
+
         await FirebaseFirestore.instance
             .collection('users')
             .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -88,7 +92,9 @@ class AddFollowUpCubit extends Cubit<AddFollowUpState> {
           'date': convertStringToTimestamp(formattedCurrentDate),
           'text': text ?? "",
           "image": imageURLs,
-          "docPaths": docURLs
+          "docPaths": docURLs,
+          'doctorName':BlocProvider.of<GetUserDataCubit>(context).userModel!.userName,
+          'doctorId':BlocProvider.of<GetUserDataCubit>(context).userModel!.id
         });
 
         patientRecord.followUpList.add(FollowUp(

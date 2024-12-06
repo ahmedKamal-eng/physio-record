@@ -3,20 +3,14 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:physio_record/AddFollowUpItem/AddFollowUpCubit/add_follow_up_cubit.dart';
 import 'package:physio_record/AddFollowUpItem/AddFollowUpCubit/add_follow_up_states.dart';
-import 'package:physio_record/FollowUpScreen/follow_up_screen.dart';
 import '../HomeScreen/FetchAllRecord/fetch_record_cubit.dart';
 import '../models/patient_record.dart';
 
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as p;
-
-import 'package:url_launcher/url_launcher.dart';
 
 class AddFollowUPItemScreen extends StatefulWidget {
   AddFollowUPItemScreen({Key? key, required this.patientRecord})
@@ -106,7 +100,9 @@ class _AddFollowUPItemScreenState extends State<AddFollowUPItemScreen> {
                                       patientRecord: widget.patientRecord,
                                       text: textController.text.trim(),
                                       imagePaths: imagePaths,
-                                      docPaths: docPaths)
+                                      docPaths: docPaths,
+                                      context: context
+                             )
                                   .whenComplete(() {
                                 BlocProvider.of<FetchRecordCubit>(context)
                                     .fetchAllRecord();

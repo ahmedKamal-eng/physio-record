@@ -33,7 +33,7 @@ class EditRecordCubit extends Cubit<EditRecordState> {
   void editMC(PatientRecord patientRecord, String mc) {
     emit(EditMCLoading());
     try {
-      patientRecord.mc[0] = mc;
+      patientRecord.mc = mc.split('\n');
       patientRecord.save();
       emit(EditMCSuccess());
     } catch (e) {

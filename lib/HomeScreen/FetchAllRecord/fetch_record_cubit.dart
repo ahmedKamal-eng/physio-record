@@ -62,8 +62,11 @@ class FetchRecordCubit extends Cubit<FetchRecordState> {
       for (var patient in patientRecords!) {
         if (patient.followUpIdsOnlyInLocal.isNotEmpty) {
           for (var followUpId in patient.followUpIdsOnlyInLocal) {
+
             for (FollowUp followUp in patient.followUpList) {
               if (patient.followUpIdsOnlyInLocal.indexOf(followUp.id) != -1) {
+
+
                 if (followUp.image?.isNotEmpty ?? false) {
                   for (var imagePath in followUp.image!) {
                     File file = File(imagePath);
@@ -89,29 +92,62 @@ class FetchRecordCubit extends Cubit<FetchRecordState> {
                   }
                 }
               }
+
             }
 
-            FirebaseFirestore.instance
-                .collection("users")
-                .doc(FirebaseAuth.instance.currentUser!.uid)
-                .collection("records")
-                .doc(patient.id)
-                .collection('followUp')
-                .doc(followUpId)
-                .set({
-              'id': followUpId,
-              'date': getFollowUpById(
-                      id: followUpId, followUplist: patient.followUpList)!
-                  .date,
-              'text': getFollowUpById(
+
+            if(patient.isShared!)
+              {
+                for(String doctorId in patient.doctorsId)
+                  {
+                   await FirebaseFirestore.instance
+                        .collection("users")
+                        .doc(doctorId)
+                        .collection("records")
+                        .doc(patient.id)
+                        .collection('followUp')
+                        .doc(followUpId)
+                        .set({
+                      'id': followUpId,
+                      'date': getFollowUpById(
                           id: followUpId, followUplist: patient.followUpList)!
-                      .text ??
-                  "",
-              "image": imageURLs,
-              "docPaths": getFollowUpById(
-                      id: followUpId, followUplist: patient.followUpList)!
-                  .docPath
-            });
+                          .date,
+                      'text': getFollowUpById(
+                          id: followUpId, followUplist: patient.followUpList)!
+                          .text ??
+                          "",
+                      "image": imageURLs,
+                      "docPaths": getFollowUpById(
+                          id: followUpId, followUplist: patient.followUpList)!
+                          .docPath
+                    });
+                  }
+
+              }else{
+
+                await FirebaseFirestore.instance
+                      .collection("users")
+                      .doc(FirebaseAuth.instance.currentUser!.uid)
+                      .collection("records")
+                      .doc(patient.id)
+                      .collection('followUp')
+                      .doc(followUpId)
+                      .set({
+                    'id': followUpId,
+                    'date': getFollowUpById(
+                        id: followUpId, followUplist: patient.followUpList)!
+                        .date,
+                    'text': getFollowUpById(
+                        id: followUpId, followUplist: patient.followUpList)!
+                        .text ??
+                        "",
+                    "image": imageURLs,
+                    "docPaths": getFollowUpById(
+                        id: followUpId, followUplist: patient.followUpList)!
+                        .docPath
+                  });
+
+            }
           }
           patient.followUpIdsOnlyInLocal = [];
           patient.save();
@@ -120,6 +156,7 @@ class FetchRecordCubit extends Cubit<FetchRecordState> {
       emit(UploadLocalDataSuccess());
     } catch (e) {
       emit(UploadLocalDataError(error: e.toString()));
+      print("++++++++++++++"+e.toString());
     }
   }
 
@@ -140,7 +177,6 @@ class FetchRecordCubit extends Cubit<FetchRecordState> {
         patient.updatedInLocal=false;
         patient.save();
       }
-      ;
     }
   }
 
@@ -168,6 +204,34 @@ class FetchRecordCubit extends Cubit<FetchRecordState> {
       isFiltered = true;
       emit(FilterRecordsSuccess());
     } catch (e) {
+      emit(FilterRecordsError(error: e.toString()));
+    }
+  }
+
+  void filterSharedPatient(){
+    emit(FilterRecordsLoading());
+    try {
+      var recordBox = Hive.box<PatientRecord>('patient_records');
+      filteredPatientRecords = recordBox.values.where((patient) {
+        return patient.isShared!;
+      }).toList();
+      isFiltered = true;
+      emit(FilterRecordsSuccess());
+    }catch(e){
+      emit(FilterRecordsError(error: e.toString()));
+    }
+  }
+
+  void filterNotSharedPatient(){
+    emit(FilterRecordsLoading());
+    try {
+      var recordBox = Hive.box<PatientRecord>('patient_records');
+      filteredPatientRecords = recordBox.values.where((patient) {
+        return !patient.isShared!;
+      }).toList();
+      isFiltered = true;
+      emit(FilterRecordsSuccess());
+    }catch(e){
       emit(FilterRecordsError(error: e.toString()));
     }
   }

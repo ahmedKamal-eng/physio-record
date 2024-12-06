@@ -25,7 +25,7 @@ class MyDrawer extends StatefulWidget {
 
 class _MyDrawerState extends State<MyDrawer> {
   bool isLoading = false;
-  bool internetConnected = true;
+  bool internetConnected = false;
   late UserModel userModel;
   List<String> friendIds = [];
 
@@ -45,7 +45,6 @@ class _MyDrawerState extends State<MyDrawer> {
   @override
   void initState() {
     checkConnectivity();
-    userModel = BlocProvider.of<GetUserDataCubit>(context).userModel!;
     getFriendIds();
     super.initState();
   }
@@ -57,7 +56,18 @@ class _MyDrawerState extends State<MyDrawer> {
       internetConnected = false;
       setState(() {
       });
+    }else{
+
+      if(BlocProvider.of<GetUserDataCubit>(context).userModel == null) {
+        await BlocProvider.of<GetUserDataCubit>(context).getUserData();
+      }
+      userModel = BlocProvider.of<GetUserDataCubit>(context).userModel!;
+      internetConnected = true;
+      setState(() {
+      });
+
     }
+
   }
 
   @override
@@ -82,7 +92,7 @@ class _MyDrawerState extends State<MyDrawer> {
                 ),
                 Text(
                   userModel.userName,
-                  style: Theme.of(context).textTheme.headlineLarge,
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.bold,color: Colors.teal),
                 ),
                 SizedBox(
                   height: 4,
@@ -90,6 +100,15 @@ class _MyDrawerState extends State<MyDrawer> {
                 Text(
                   userModel.email,
                   style: Theme.of(context).textTheme.titleMedium,
+                ),
+                SizedBox(height: 4,),
+                Text(userModel.medicalSpecialization),
+                Row(
+                  children: [
+                    SizedBox(width: 2,),
+                    Text("Your Subscription End At:"),
+                    Text(userModel.endTime,style: TextStyle(color: Colors.teal,fontWeight: FontWeight.bold),)
+                  ],
                 ),
                 SizedBox(
                   height: 70,

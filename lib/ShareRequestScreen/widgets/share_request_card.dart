@@ -7,8 +7,6 @@ import 'package:physio_record/ShareRequestScreen/AcceptRequestCubit/accept_reque
 import 'package:physio_record/ShareRequestScreen/AcceptRequestCubit/accept_request_states.dart';
 import 'package:physio_record/models/share_request_model.dart';
 
-
-
 class ShareRequestCard extends StatelessWidget {
   final ShareRequestModel requestModel;
   ShareRequestCard({required this.requestModel});
@@ -16,7 +14,8 @@ class ShareRequestCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.teal,
+      color: Colors.white,
+      elevation: 10,
       margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
@@ -40,7 +39,7 @@ class ShareRequestCard extends StatelessWidget {
                     width: 200,
                     child: Text(
                       "Dr.${requestModel.doctorName} want's to share ${requestModel.patientName} record with You \n diagnosis:${requestModel.diagnosis}",
-                      style: TextStyle(color: Colors.white, fontSize: 20),
+                      style: TextStyle(color: Colors.black, fontSize: 20),
                       maxLines: 15,
                     )),
               ],
@@ -59,21 +58,24 @@ class ShareRequestCard extends StatelessWidget {
                       backgroundColor: Colors.redAccent,
                     );
                     print(state.error + "33333333333333333333333");
+                    if(Navigator.canPop(context))
+                      Navigator.pop(context);
                   }
 
                   if (state is AcceptRequestSuccess) {
                     Fluttertoast.showToast(
-                        msg: "${requestModel.patientName} record added to shared record section",
+                        msg:
+                            "${requestModel.patientName} record added to shared record section",
                         timeInSecForIosWeb: 4,
                         backgroundColor: Colors.teal,
                         textColor: Colors.white);
 
+                    if(Navigator.canPop(context))
+                      {
                     Navigator.pop(context);
+                    }
                   }
-
-
-                },
-                    builder: (context, state) {
+                }, builder: (context, state) {
                   return ElevatedButton(
                       onPressed: () {
                         showDialog(
@@ -81,36 +83,52 @@ class ShareRequestCard extends StatelessWidget {
                                 state is AcceptRequestLoading ? false : true,
                             context: context,
                             builder: (context) {
-                              return AlertDialog(
-                                title: state is AcceptRequestLoading
-                                    ? Center(
-                                        child: CircularProgressIndicator(),
-                                      )
-                                    : Text(
-                                        "Are you sure you want to accept this request"),
-                                actions: state is AcceptRequestLoading
-                                    ? []
-                                    : [
-                                        ElevatedButton(
-                                            onPressed: () {
-                                              BlocProvider.of<
-                                                          AcceptRequestCubit>(
-                                                      context)
-                                                  .addSharedRecord(
-                                                      requestModel).whenComplete((){
-                                                        FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).collection('shareRequests').doc(requestModel.requestId).delete();
-                                                        FirebaseFirestore.instance.collection('users').doc(requestModel.senderId).collection('submittedRequests').doc(requestModel.requestId).update(
-                                                            {"status":"accept"});
+                              return BlocBuilder<AcceptRequestCubit,AcceptRequestState>(
+                                builder: (context,state) {
+                                  return AlertDialog(
 
-                                              });
-                                            },
-                                            child: Text("Yes")),
-                                        ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Text("No")),
-                                      ],
+                                    title: state is AcceptRequestLoading
+                                        ? Center(
+                                            child: CircularProgressIndicator(),
+                                          )
+                                        : Text("Are you sure you want to accept this request"),
+
+                                    actions: state is AcceptRequestLoading
+                                        ? []
+                                        : [
+                                            ElevatedButton(
+                                                onPressed: () {
+                                                  BlocProvider.of<
+                                                              AcceptRequestCubit>(
+                                                          context)
+                                                      .addSharedRecord(requestModel,context)
+                                                      .whenComplete(() {
+                                                    FirebaseFirestore.instance
+                                                        .collection('users')
+                                                        .doc(FirebaseAuth.instance
+                                                            .currentUser!.uid)
+                                                        .collection('shareRequests')
+                                                        .doc(requestModel.requestId)
+                                                        .delete();
+                                                    FirebaseFirestore.instance
+                                                        .collection('users')
+                                                        .doc(requestModel.senderId)
+                                                        .collection(
+                                                            'submittedRequests')
+                                                        .doc(requestModel.requestId)
+                                                        .update(
+                                                            {"status": "accept"});
+                                                  });
+                                                },
+                                                child: Text("Yes")),
+                                            ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Text("No")),
+                                          ],
+                                  );
+                                }
                               );
                             });
                       },

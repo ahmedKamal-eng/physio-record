@@ -74,11 +74,15 @@ class AddToFriendScreen extends SearchDelegate<String> {
                   listener: (context, state) {
                 if (state is AddToFriendSuccess) {
 
-                  Navigator.pop(context);
                   Fluttertoast.showToast(
                       msg:
                           "Dr.${user['userName']} added to your friends successfully",
                       backgroundColor: Colors.teal);
+                  if(Navigator.canPop(context))
+                    {
+                      Navigator.pop(context);
+
+                    }
                 }
               }, builder: (context, state) {
                 return InkWell(
@@ -86,60 +90,73 @@ class AddToFriendScreen extends SearchDelegate<String> {
                     showDialog(
                         context: context,
                         builder: (context) {
-                          return AlertDialog(
-                            title: state is AddToFriendLoading
-                                ? Center(
-                                    child: CircularProgressIndicator(),
-                                  )
-                                : Text(
-                                    "You want to add Dr.${user['userName']} to your friends"),
-                            actions: state is AddToFriendLoading
-                                ? []
-                                : [
-                                    ElevatedButton(
-                                        onPressed: () {
-                                          BlocProvider.of<AddToFriendCubit>(
-                                                  context)
-                                              .addUserToFriend(
-                                                  id: user['id'],
-                                                  name: user['userName'],
-                                                  img: user['imageUrl'],
-                                                  medicalSpecialization: user[
-                                                      'medicalSpecialization']);
-                                        },
-                                        child: Text("Yes")),
-                                    ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text("No")),
-                                  ],
+                          return BlocBuilder<AddToFriendCubit,AddToFriendState>(
+                            builder: (context,state) {
+                              return AlertDialog(
+                                title: state is AddToFriendLoading
+                                    ? Center(
+                                        child: CircularProgressIndicator(),
+                                      )
+                                    : Text(
+                                        "You want to add Dr.${user['userName']} to your friends"),
+                                actions: state is AddToFriendLoading
+                                    ? []
+                                    : [
+                                        ElevatedButton(
+                                            onPressed: () {
+                                              BlocProvider.of<AddToFriendCubit>(
+                                                      context)
+                                                  .addUserToFriend(
+                                                      id: user['id'],
+                                                      name: user['userName'],
+                                                      img: user['imageUrl'],
+                                                      medicalSpecialization: user[
+                                                          'medicalSpecialization']);
+                                            },
+                                            child: Text("Yes")),
+                                        ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text("No")),
+                                      ],
+                              );
+                            }
                           );
                         });
                   },
                   child: Card(
+
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           CircleAvatar(
                             backgroundImage: NetworkImage(user['imageUrl']),
                             radius: 40,
                           ),
+                          SizedBox(width: 20,),
 
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                user['userName'],
-                                style:
-                                    Theme.of(context).textTheme.headlineMedium,
-                              ),
-                              Text(user['email']),
-                              Text(user['medicalSpecialization']),
+                          Flexible(
+                            child: Column(
+                              // mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  maxLines: 3,
 
-                            ],
+                                    overflow: TextOverflow.ellipsis,
+                                    user['userName'],
+                                    style:
+                                        Theme.of(context).textTheme.headlineMedium,
+
+                                  ),
+                                Text(user['email']),
+                                Text(user['medicalSpecialization']),
+
+                              ],
+                            ),
                           )
                         ],
                       ),

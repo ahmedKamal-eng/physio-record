@@ -41,6 +41,7 @@ class _FetchRecordFromFireStoreScreenState
 
         if (recordsIds[result.docs[i].data()['id']] ?? false) {
         } else {
+
           PatientRecord patientRecord =
               PatientRecord.fromFirestore(result.docs[i]);
           recordBox.add(patientRecord);

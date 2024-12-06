@@ -10,6 +10,10 @@ import '../../Cubits/GetUserDataCubit/get_user_data_cubit.dart';
 class ShareRecordCubit extends Cubit<ShareRecordState> {
   ShareRecordCubit() : super(ShareRecordInitial());
 
+
+
+
+
   Future<void> shareRecord(
       {
 
@@ -17,62 +21,76 @@ class ShareRecordCubit extends Cubit<ShareRecordState> {
       required context,
       required String patientName,
       required String receiverDoctorID,
+      required List<String> doctorIds,
       required String receiverDoctorName,
       required String diagnosis,
-      required bool isSharedBefore
+      required bool isSharedBefore,
+      required Timestamp recordDate
 
       }) async {
 
     emit(ShareRecordLoading());
 
+   late String doctorName;
+   late String doctorImage;
     try {
-      var uuid = Uuid();
-      String requestId = uuid.v8();
-      Timestamp currentDate = Timestamp.now();
-
-      FirebaseFirestore.instance
-          .collection("users")
-          .doc(receiverDoctorID)
-          .collection('shareRequests')
-          .doc(requestId)
-          .set({
-        "senderId": FirebaseAuth.instance.currentUser!.uid,
-        'doctorIds':[FirebaseAuth.instance.currentUser!.uid,receiverDoctorID],
-        "recordId": recordId,
-        "doctorsSharedThisRecord": isSharedBefore,
-        "date": currentDate,
-        "requestId": requestId,
-        "patientName": patientName,
-        "diagnosis": diagnosis,
-        "doctorName":
-            BlocProvider.of<GetUserDataCubit>(context).userModel!.userName,
-        "doctorImage":
-            BlocProvider.of<GetUserDataCubit>(context).userModel!.imageUrl,
-      });
-
-      FirebaseFirestore.instance
-          .collection('users')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection('submittedRequests')
-          .doc(requestId)
-          .set({
-        "senderId": FirebaseAuth.instance.currentUser!.uid,
-        'recieverId':receiverDoctorID,
-        "DoctorsSharedThisRecord": isSharedBefore,
-        "recordId": recordId,
-        "date": currentDate,
-        "requestId": requestId,
-        "patientName": patientName,
-        "diagnosis": diagnosis,
-        'status': "waiting",
-        "doctorName":
-           receiverDoctorName
-      });
-
-      emit(ShareRecordSuccess());
-    } catch (e) {
-      emit(ShareRecordError(error: e.toString()));
-      print(e.toString() + "^^^^^^^^^^^^^^^^^^^^^^^");
+      final userDataCubit = BlocProvider.of<GetUserDataCubit>(context);
+       doctorName = userDataCubit.userModel?.userName ?? 'Unknown Doctor';
+       doctorImage = userDataCubit.userModel?.imageUrl ?? '';
+    }catch(e)
+    {
+      print(e.toString()+"######## look at share_record_cubit");
     }
+
+      try {
+        var uuid = Uuid();
+        String requestId = uuid.v8();
+
+
+      await  FirebaseFirestore.instance
+            .collection("users")
+            .doc(receiverDoctorID)
+            .collection('shareRequests')
+            .doc(requestId)
+            .set({
+          "senderId": FirebaseAuth.instance.currentUser!.uid,
+          'doctorIds':doctorIds,
+          "recordId": recordId,
+          "doctorsSharedThisRecord": isSharedBefore,
+          "date": recordDate,
+          "requestId": requestId,
+          "patientName": patientName,
+          "diagnosis": diagnosis,
+          "doctorName":doctorName,
+          "doctorImage":doctorImage,
+        });
+
+       await FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .collection('submittedRequests')
+            .doc(requestId)
+            .set({
+          "senderId": FirebaseAuth.instance.currentUser!.uid,
+          'recieverId':receiverDoctorID,
+          "DoctorsSharedThisRecord": isSharedBefore,
+          "recordId": recordId,
+          "date": recordDate,
+          "requestId": requestId,
+          "patientName": patientName,
+          "diagnosis": diagnosis,
+          'status': "waiting",
+          "doctorName":
+          receiverDoctorName
+        });
+
+        emit(ShareRecordSuccess());
+      } catch (e) {
+        emit(ShareRecordError(error: e.toString()));
+        print(e.toString() + "^^^^^^^^^^^^^^^^^^^^^^^");
+      }
+
+
+
   }
 }

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:physio_record/SearchForDoctorsScreen/ShareRecordCubit/share_record_cubit.dart';
 import 'package:physio_record/SearchForDoctorsScreen/ShareRecordCubit/share_record_state.dart';
+import 'package:physio_record/global_vals.dart';
 import 'package:physio_record/models/patient_record.dart';
 
 class UserSearchDelegate extends SearchDelegate<String> {
@@ -12,23 +13,17 @@ class UserSearchDelegate extends SearchDelegate<String> {
   List<String> doctorsIds;
   final isSharedBefore;
   UserSearchDelegate(
-      {required this.patientRecord, required this.isSharedBefore,required this.doctorsIds});
+      {required this.patientRecord,
+      required this.isSharedBefore,
+      required this.doctorsIds});
 
   // Firestore reference
   final CollectionReference usersCollection =
       FirebaseFirestore.instance.collection('users');
 
-
-
-
-
-
   // Override the `buildSuggestions` method to show the results while typing
   @override
   Widget buildSuggestions(BuildContext context) {
-
-
-
     if (query.isEmpty) {
       return Center(child: Text('Start typing to search...'));
     }
@@ -41,7 +36,7 @@ class UserSearchDelegate extends SearchDelegate<String> {
           .where('userNameLowerCase',
               isLessThanOrEqualTo: query.toLowerCase() + '\uf8ff')
           .get(),
-      builder: (context, snapshot){
+      builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         }
@@ -50,7 +45,7 @@ class UserSearchDelegate extends SearchDelegate<String> {
           return Center(child: Text('No results found.'));
         }
 
-         var results = snapshot.data!.docs;
+        var results = snapshot.data!.docs;
         // if (isSharedBefore) {
         //   FirebaseFirestore.instance
         //       .collection('users')
@@ -73,66 +68,98 @@ class UserSearchDelegate extends SearchDelegate<String> {
 
         return ListView.builder(
           itemCount: results.length,
-          itemBuilder: (context, index)  {
+          itemBuilder: (context, index) {
             var user = results[index];
 
-
-            if(doctorsIds.contains(user['id']))
-              {
-                return Container();
-              }
+            if (doctorsIds.contains(user['id'])) {
+              return Container();
+            }
             return Padding(
               padding: const EdgeInsets.all(8.0),
               child: BlocConsumer<ShareRecordCubit, ShareRecordState>(
                   listener: (context, state) {
                 if (state is ShareRecordSuccess) {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
                   Fluttertoast.showToast(
                       msg: "Your request sent successfully",
                       backgroundColor: Colors.teal);
+
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
                 }
+
+                // if (state is ShareRecordLoading) {
+                //   showDialog(
+                //     context: context,
+                //     barrierDismissible: false,
+                //     builder: (BuildContext context) {
+                //       return AlertDialog(
+                //         title: Center(
+                //           child: CircularProgressIndicator(),
+                //         ),
+                //       );
+                //     },
+                //   );
+                // }
               }, builder: (context, state) {
                 return InkWell(
                   onTap: () {
                     showDialog(
+                        barrierDismissible: false,
                         context: context,
                         builder: (context) {
-                          return AlertDialog(
-                            title: state is ShareRecordLoading
-                                ? Center(
-                                    child: CircularProgressIndicator(),
-                                  )
-                                : Text(
-                                    "You want to share this record with ${user['userName']}"),
-                            actions: state is ShareRecordLoading
-                                ? []
-                                : [
-                                    ElevatedButton(
-                                        onPressed: () {
-                                          BlocProvider.of<ShareRecordCubit>(
-                                                  context)
-                                              .shareRecord(
-                                                  context: context,
-                                                  recordId: patientRecord.id,
-                                                  patientName:
-                                                      patientRecord.patientName,
-                                                  receiverDoctorName:
-                                                      user['userName'],
-                                                  receiverDoctorID: user['id'],
-                                                  diagnosis:
-                                                      patientRecord.diagnosis,
-                                                  isSharedBefore:
-                                                      isSharedBefore);
-                                        },
-                                        child: Text("Yes")),
-                                    ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text("No")),
-                                  ],
-                          );
+                          return BlocBuilder<ShareRecordCubit,
+                              ShareRecordState>(builder: (context, state) {
+                            return AlertDialog(
+                              title: state is ShareRecordLoading
+                                  ? Center(
+                                      child: CircularProgressIndicator(),
+                                    )
+                                  : Text(
+                                      "You want to share this record with ${user['userName']}"),
+                              actions: state is ShareRecordLoading
+                                  ? []
+                                  : [
+                                      ElevatedButton(
+                                          onPressed: () {
+                                            BlocProvider.of<ShareRecordCubit>(
+                                                    context)
+                                                .shareRecord(
+                                                    context: context,
+                                                    recordId: patientRecord.id,
+                                                    patientName: patientRecord
+                                                        .patientName,
+                                                    receiverDoctorName:
+                                                        user['userName'],
+                                                    receiverDoctorID:
+                                                        user['id'],
+                                                    diagnosis:
+                                                        patientRecord.diagnosis,
+                                                    isSharedBefore:
+                                                        isSharedBefore,
+                                                    recordDate:
+                                                        convertStringToTimestamp(
+                                                            patientRecord.date),
+                                                    doctorIds: isSharedBefore
+                                                        ? patientRecord
+                                                            .doctorsId
+                                                        : [
+                                                            user['id'],
+                                                            FirebaseAuth
+                                                                .instance
+                                                                .currentUser!
+                                                                .uid
+                                                          ]);
+                                          },
+                                          child: Text("Yes")),
+                                      ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text("No")),
+                                    ],
+                            );
+                          });
                         });
                   },
                   child: Card(
@@ -145,7 +172,6 @@ class UserSearchDelegate extends SearchDelegate<String> {
                             backgroundImage: NetworkImage(user['imageUrl']),
                             radius: 40,
                           ),
-
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [

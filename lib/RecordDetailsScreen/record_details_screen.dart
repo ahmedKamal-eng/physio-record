@@ -65,7 +65,7 @@ class RecordDetailsScreen extends StatelessWidget {
                           } else if (fieldName == "mc") {
 
                             FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).collection('records').doc(patientRecord.id).update(
-                                {"mc":editController.text.trim()});
+                                {"mc":editController.text.split('\n')});
                             BlocProvider.of<EditRecordCubit>(context).editMC(
                                 patientRecord, editController.text.trim());
                           } else if (fieldName == "program") {
@@ -124,6 +124,7 @@ class RecordDetailsScreen extends StatelessWidget {
           ),
         ),
         body: Container(
+
           padding: EdgeInsets.all(20),
           width: double.infinity,
           child: Center(
@@ -131,7 +132,19 @@ class RecordDetailsScreen extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  // color: Color(0xffd1d8e0),
+                  color: Colors.white,
+
+
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.teal.withOpacity(0.3), // Shadow color with opacity
+                      spreadRadius: 3, // How much the shadow spreads
+                      blurRadius: 3, // How soft or blurred the shadow is
+                      offset: Offset(0, 3), // Offset (horizontal, vertical)
+                    ),
+                  ],
+                  borderRadius: BorderRadius.circular(3),
                   border: Border.all(width: 2, color: Colors.teal),
                 ),
                 child: SingleChildScrollView(
@@ -184,16 +197,26 @@ class RecordDetailsScreen extends StatelessWidget {
                       const SizedBox(
                         height: 20,
                       ),
+                      Text('Other Medical Conditions:', style: Theme.of(context).textTheme.headlineSmall,),
                       Wrap(
                         children: [
-                          Text(
-                            'MC: ${patientRecord.mc[0]}',
-                            style: Theme.of(context).textTheme.headlineMedium,
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemBuilder: (context,index)
+                           {
+                             return  Text(
+                               '${patientRecord.mc[index]}',
+                               style: Theme.of(context).textTheme.headlineMedium,
+                             );
+                           },
+                            itemCount: patientRecord.mc.length,
                           ),
+
                           IconButton(
                               onPressed: () {
                                 _showEditDialog(
-                                    patientRecord.mc[0], context, "mc");
+                                    patientRecord.mc.join('\n'), context, "mc");
                                 // BlocProvider.of<EditRecordCubit>(context).editName(patientRecord, "ahmed");
                               },
                               icon: Icon(
@@ -228,29 +251,29 @@ class RecordDetailsScreen extends StatelessWidget {
                       SizedBox(
                         height: 20,
                       ),
-                      Divider(
-                        thickness: 3,
-                        color: Colors.teal,
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-
-                      Center(
-                        child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => FollowUPScreen(
-                                          patientRecord: patientRecord)));
-                            },
-                            child: Text(
-                              "Go To Follow Up Section",
-                              style:
-                                  TextStyle(fontSize: screenSize.width * .06),
-                            )),
-                      ),
+                      // Divider(
+                      //   thickness: 3,
+                      //   color: Colors.teal,
+                      // ),
+                      // SizedBox(
+                      //   height: 20,
+                      // ),
+                      //
+                      // Center(
+                      //   child: ElevatedButton(
+                      //       onPressed: () {
+                      //         Navigator.push(
+                      //             context,
+                      //             MaterialPageRoute(
+                      //                 builder: (context) => FollowUPScreen(
+                      //                     patientRecord: patientRecord)));
+                      //       },
+                      //       child: Text(
+                      //         "Go To Follow Up Section",
+                      //         style:
+                      //             TextStyle(fontSize: screenSize.width * .06),
+                      //       )),
+                      // ),
 
                       // follow up section
                       // Align(
