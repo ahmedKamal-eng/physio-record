@@ -1,0 +1,2 @@
+G:/flutter-app/physio_record/android/app/.cxx/RelWithDebInfo/26c1j5xm/armeabi-v7a/CMakeFiles/edit_cache.dir
+G:/flutter-app/physio_record/android/app/.cxx/RelWithDebInfo/26c1j5xm/armeabi-v7a/CMakeFiles/rebuild_cache.dir
