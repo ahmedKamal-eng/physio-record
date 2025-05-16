@@ -23,7 +23,7 @@ class _ExpandableTextState extends State<ExpandableText> {
           widget.text,
           maxLines: isExpanded ? null : 2,
           overflow: isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.titleLarge,
+          style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.grey[600]),
         ),
         SizedBox(height: 5),
         GestureDetector(

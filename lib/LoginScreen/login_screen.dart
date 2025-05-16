@@ -6,6 +6,7 @@ import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive/hive.dart';
+import 'package:physio_record/Cubits/GetUserDataCubit/get_user_data_cubit.dart';
 import 'package:physio_record/FetchRecordFromFireStore/fetch_record_from_fire_store_screen.dart';
 import 'package:physio_record/HomeScreen/home_screen.dart';
 import 'package:physio_record/sign_up_screen/sign_up_screen.dart';
@@ -71,14 +72,16 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _isLoading = true;
       });
+
       try {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _email.trim(),
           password: _password.trim(),
-        );
-
+        ).whenComplete(()async{
+          await _fetchRecordsThatNotStoredLocally();
+        });
         // Navigate to the home screen upon successful login
-        await _fetchRecordsThatNotStoredLocally();
+        BlocProvider.of<GetUserDataCubit>(context).getUserData();
 
       } on FirebaseAuthException catch (e) {
         String message = 'An error occurred';
@@ -186,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
     Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Colors.teal,
+      backgroundColor: Colors.blue,
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: _isLoading
@@ -264,8 +267,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(height: size.height * 0.04),
               
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
                         onPressed: _login,
-                        child: Text('Login',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+                        child: Text('Login',style: TextStyle(fontSize: 20,color: Colors.blue,fontWeight: FontWeight.bold),),
                       ),
                       SizedBox(height: size.height * 0.07),
               

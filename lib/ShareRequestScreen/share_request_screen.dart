@@ -22,9 +22,15 @@ class _ShareRequestScreenState extends State<ShareRequestScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue[50],
       appBar: AppBar(
-        title: Text("Share Request"),
+        backgroundColor: Colors.blue,
+        leading: IconButton(onPressed: (){
+          Navigator.pop(context);
+        }, icon: Icon(Icons.arrow_back,color: Colors.white,)),
+        title: Text("Share Request",style: TextStyle(color: Colors.white),),
       ),
+
       body: StreamBuilder<QuerySnapshot>(
         stream: _shareRequestsStream,
         builder: (context, snapshot) {

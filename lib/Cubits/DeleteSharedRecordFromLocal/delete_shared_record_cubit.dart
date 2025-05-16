@@ -21,11 +21,12 @@ class DeleteSharedRecordCubit extends Cubit<DeleteSharedRecordState> {
         .then((val) {
       if (val.docs.isNotEmpty) {
         for (int i = 0; i < val.docs!.length; i++) {
-          if (val.docs[i]['status'] == 'accept') {
-            print(val.docs[i]['recordId'] + "@@@@@@@@@@");
 
-            sharedRecordIds.add(val.docs[i]["recordId"]);
-            acceptedRequestIds.add(val.docs[i]['requestId']);
+          if(val.docs[i]['requestType'] != 'joining') {
+            if (val.docs[i]['status'] == 'accept') {
+              sharedRecordIds.add(val.docs[i]["recordId"]);
+              acceptedRequestIds.add(val.docs[i]['requestId']);
+            }
           }
         }
       }

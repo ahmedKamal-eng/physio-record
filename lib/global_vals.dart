@@ -5,9 +5,43 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:physio_record/models/patient_record.dart';
+
+
+/// Returns a [Timestamp] after adding [months] to the current date.
+Timestamp getTimestampAfterMonths(int months) {
+  final currentDate = DateTime.now();
+
+  // Calculate the new month and year, handling month overflow
+  final newMonth = (currentDate.month + months - 1) % 12 + 1;
+  final yearsToAdd = (currentDate.month + months - 1) ~/ 12;
+  final newYear = currentDate.year + yearsToAdd;
+
+  // Handle end-of-month edge cases
+  final lastDayOfNewMonth = DateTime(newYear, newMonth + 1, 0).day;
+  final newDay = currentDate.day > lastDayOfNewMonth
+      ? lastDayOfNewMonth
+      : currentDate.day;
+
+  // Create the new DateTime object
+  final newDate = DateTime(
+    newYear,
+    newMonth,
+    newDay,
+    currentDate.hour,
+    currentDate.minute,
+    currentDate.second,
+    currentDate.millisecond,
+  );
+
+  // Convert the new DateTime to Firebase Timestamp
+  return Timestamp.fromDate(newDate);
+}
+
+
 
 Timestamp getTimeAfterXMonth({required DateTime time,required int x}){
 
@@ -46,6 +80,28 @@ FollowUp? getFollowUpById({required String id,required List<FollowUp> followUpli
 }
 
 
+Future<PatientRecord> getPatientFromLocalById(String id)async
+{
+  var patientBox =
+      await Hive.box<PatientRecord>(
+      'patient_records');
+  PatientRecord currentPatient = patientBox.values.firstWhere(
+        (p) => p.id == id,
+  );
+
+  return currentPatient;
+}
+
+Future<FollowUp> getFollowUpFromLocalById(PatientRecord currentPatient,String id)async
+{
+
+  FollowUp followUp = currentPatient.followUpList.firstWhere(
+        (f) => f.id == id,
+  );
+
+  return followUp;
+}
+
 Timestamp convertStringToTimestamp(String dateString) {
   // Define the format of your date string
   final DateFormat format = DateFormat('HH:mm d-M-y'); // Adjust the format as needed
@@ -82,7 +138,7 @@ Future<void> deleteFile(String filePath) async {
 
     print('File deleted successfully.');
   } catch (e) {
-    print('Failed to delete file: $e');
+    print('&delete file method&Failed to delete file: $e');
   }
 }
 
@@ -91,9 +147,35 @@ bool hasTimestampPassed(Timestamp timestamp) {
   DateTime givenTime = timestamp.toDate(); // Convert Firestore Timestamp to DateTime
 
   // Return true if the given time is before the current time
+
   return givenTime.isBefore(currentTime);
 }
 
+Future<List<String>> fetchAndDownloadXRays(String recordId,String fileType) async {
+
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  List<String> _filePaths = [];
+  // Replace 'your-folder' with your Firebase Storage folder
+  ListResult result = await _storage.ref('rays/$recordId/$fileType').listAll();
+
+  // Get the directory to store downloaded files
+  Directory appDocDir = await getApplicationDocumentsDirectory();
+
+  for (var item in result.items) {
+    // Download each file
+    String fileName = item.name;
+    String filePath = '${appDocDir.path}/$fileName';
+
+    // Download the file
+    await item.writeToFile(File(filePath));
+
+    // Store the local file path in the list
+    _filePaths.add(filePath);
+    print('File downloaded to: $filePath');
+  }
+  return _filePaths;
+
+}
 
 
 Future<List<String>> fetchAndDownloadFiles(String file,String recordId, String followUpId) async {
@@ -121,3 +203,11 @@ Future<List<String>> fetchAndDownloadFiles(String file,String recordId, String f
     return _filePaths;
 
 }
+
+final plans = [
+  {'name': 'Monthly', 'price': 100.0, 'duration': 30},
+  {'name': 'Quarterly', 'price': 270.0, 'duration': 90},
+  {'name': 'Yearly', 'price': 1000.0, 'duration': 365},
+];
+
+

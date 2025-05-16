@@ -18,7 +18,7 @@ class PatientRecord extends HiveObject {
   late List<String> mc;
 
   @HiveField(4)
-  late String program;
+  late List<String> program;
 
   @HiveField(5)
   List<FollowUp> followUpList = [];
@@ -27,13 +27,13 @@ class PatientRecord extends HiveObject {
   late String id;
 
   @HiveField(7)
-   bool? onlyInLocal;
+  bool? onlyInLocal;
 
   @HiveField(8)
   late bool updatedInLocal;
 
   @HiveField(9)
-  List<String> followUpIdsOnlyInLocal = [];
+  List<FollowUp> followUpOnlyInLocal = [];
 
   @HiveField(10)
   List<String> followUpIdsUpdatedOnlyInLocal = [];
@@ -42,18 +42,42 @@ class PatientRecord extends HiveObject {
   bool? isShared;
 
   @HiveField(12)
-  List<String> doctorsId=[];
+  List<String> doctorsId = [];
 
   @HiveField(13)
-  List<String> rayImages=[];
+  List<String> rayImages = [];
 
   @HiveField(14)
-  List<String> raysPDF=[];
+  List<String> raysPDF = [];
 
+  @HiveField(15)
+  int? age;
 
+  @HiveField(16)
+  String? gender;
 
+  @HiveField(17)
+  List<String> medicalHistory = [];
 
+  @HiveField(18)
+  List<String> medication = [];
 
+  @HiveField(19)
+  List<String> knownAllergies = [];
+  @HiveField(20)
+  int? phoneNumer;
+  @HiveField(21)
+  String? job;
+  @HiveField(22)
+  String? reasonForVisit;
+  @HiveField(23)
+  String? conditionAssessment;
+
+  @HiveField(24)
+  String? doctorName;
+
+  @HiveField(25)
+  String? doctorImage;
 
   PatientRecord(
       {required this.patientName,
@@ -65,54 +89,61 @@ class PatientRecord extends HiveObject {
       required this.id,
       this.onlyInLocal = false,
       this.updatedInLocal = false,
-      this.isShared=false,
+      this.isShared = false,
       required this.doctorsId,
       required this.rayImages,
       required this.raysPDF,
-      required this.followUpIdsOnlyInLocal,
+      required this.followUpOnlyInLocal,
       required this.followUpIdsUpdatedOnlyInLocal,
-      f});
+      required this.age,
+      required this.gender,
+      required this.medicalHistory,
+      required this.medication,
+      required this.knownAllergies,
+      required this.phoneNumer,
+      required this.job,
+      required this.reasonForVisit,
+      required this.conditionAssessment,
+      this.doctorName,
+      this.doctorImage,
+      });
 
-  factory PatientRecord.fromFirestore(DocumentSnapshot doc)  {
+  factory PatientRecord.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-    //  List<FollowUp>? followUpList;
-    // try {
-    //   doc.reference.collection('followUp').get().then((v) {
-    //     followUpList =
-    //         v.docs.map((followUpDoc) => FollowUp.fromFirestore(followUpDoc))
-    //             .toList();
-    //   });
-    // }catch(e)
-    // {
-    //   print("++++++++++patient Model:  "+e.toString());
-    // }
 
     return PatientRecord(
         doctorsId: List<String>.from(data['doctorsIds'] ?? {}),
         patientName: data['patientName'],
-        date:convertTimestampToString(data['date']),
+        date: convertTimestampToString(data['date']),
         diagnosis: data['diagnosis'],
         mc: List<String>.from(data['mc']),
-        program: data['program'],
+        program: List<String>.from(data['program']),
         followUpList: [],
         id: data['id'],
         onlyInLocal: false,
         isShared: data['isShared'],
-        followUpIdsOnlyInLocal: [],
+        followUpOnlyInLocal: [],
         followUpIdsUpdatedOnlyInLocal: [],
         rayImages: List<String>.from(data['rayImages'] ?? {}) ?? [],
-        raysPDF:List<String>.from(data['raysPDF'] ?? {}) ?? []
+        raysPDF: List<String>.from(data['raysPDF'] ?? {}) ?? [],
+        medicalHistory: List<String>.from(data['medicalHistory'] ?? {}) ?? [],
+        medication: List<String>.from(data['medication'] ?? {}) ?? [],
+        knownAllergies: List<String>.from(data['knownAllergies'] ?? {}) ?? [],
+        age: data['age'],
+        gender: data['gender'],
+        phoneNumer: data['phoneNumber'],
+        job: data['job'],
+        reasonForVisit: data['reasonForVisit'],
+        conditionAssessment: data['conditionAssessment'],
+        doctorName: data['doctorName'],
+        doctorImage: data['doctorImage'],
+
     );
   }
-
-
-
 }
 
-
-
 @HiveType(typeId: 1)
-class FollowUp {
+class FollowUp extends HiveObject {
   @HiveField(0)
   late String date;
   @HiveField(1)
@@ -124,12 +155,11 @@ class FollowUp {
   @HiveField(4)
   late String id;
   @HiveField(5)
-  late bool onlyInLocal;
+  bool? onlyInLocal;
   @HiveField(6)
-  late bool updatedInLocal;
+  bool? updatedInLocal;
   @HiveField(7)
   String? doctorName;
-
 
   FollowUp(
       {required this.date,
@@ -137,20 +167,20 @@ class FollowUp {
       this.image,
       this.docPath,
       required this.id,
-       this.doctorName,
+      this.doctorName,
       this.onlyInLocal = false,
       this.updatedInLocal = false});
 
-   FollowUp.fromFirestore(DocumentSnapshot doc)  {
+  FollowUp.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
-        date= convertTimestampToString(data['date']);
-        text= data['text'];
-        id= data['id'];
-        doctorName=data['doctorName'] ?? '';
-        image=List<String>.from(data['image']);
-        docPath=List<String>.from(data['docPaths']);
-        // docPath= fetchAndDownloadFiles('docs', data['RecordId'], data['RecordId']);
-        // image= fetchAndDownloadFiles('images', data['RecordId'], data['RecordId']);
+    date = data['date'] is Timestamp
+        ? convertTimestampToString(data['date'])
+        : data['date'];
+    text = data['text'];
+    id = data['id'];
+    doctorName = data['doctorName'] ?? '';
+    image = List<String>.from(data['image']);
+    docPath = List<String>.from(data['docPaths']);
   }
 }

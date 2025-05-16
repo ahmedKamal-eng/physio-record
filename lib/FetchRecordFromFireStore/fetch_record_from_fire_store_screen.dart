@@ -20,6 +20,7 @@ class FetchRecordFromFireStoreScreen extends StatefulWidget {
 
 class _FetchRecordFromFireStoreScreenState
     extends State<FetchRecordFromFireStoreScreen> {
+
   _storeRecordLocally() async {
     Map<String, bool> recordsIds = {};
     var recordBox = Hive.box<PatientRecord>('patient_records');
@@ -37,16 +38,24 @@ class _FetchRecordFromFireStoreScreenState
         .get()
         .then((result) async {
       for (int i = 0; i < result.docs.length; i++) {
-        // QuerySnapshot followUpSnapshot= await result.docs[i].reference.collection('followUp').get();
-
-        if (recordsIds[result.docs[i].data()['id']] ?? false) {
-        } else {
 
           PatientRecord patientRecord =
               PatientRecord.fromFirestore(result.docs[i]);
           recordBox.add(patientRecord);
 
-          FirebaseFirestore.instance
+          if(patientRecord.rayImages.isNotEmpty) {
+            patientRecord.rayImages =
+            await fetchAndDownloadXRays(patientRecord.id, 'images');
+            patientRecord.save();
+          }
+
+          if(patientRecord.raysPDF.isNotEmpty) {
+            patientRecord.raysPDF =
+            await fetchAndDownloadXRays(patientRecord.id, 'pdf');
+            patientRecord.save();
+          }
+
+        await  FirebaseFirestore.instance
               .collection('users')
               .doc(FirebaseAuth.instance.currentUser!.uid)
               .collection('records')
@@ -55,30 +64,47 @@ class _FetchRecordFromFireStoreScreenState
               .get()
               .then((val) async {
             if (val.docs.isNotEmpty) {
+
+
               for (int i = 0; i < val.docs.length; i++) {
                 FollowUp followUp = FollowUp.fromFirestore(val.docs[i]);
                 followUp.image = await fetchAndDownloadFiles('images',
                     val.docs[i].data()['RecordId'], val.docs[i].data()['id']);
                 followUp.docPath = await fetchAndDownloadFiles('docs',
                     val.docs[i].data()['RecordId'], val.docs[i].data()['id']);
-                // print("#############################${followUp.image![0]}");
+
 
                 patientRecord.followUpList.add(followUp);
+                patientRecord.save();
               }
             }
+
+
           }).whenComplete(() {
             patientRecord.save();
+            print("#############################${patientRecord.followUpList.length!}");
+
+
             // print(patientRecord.followUpList.length);
           });
-        }
+        // }
       }
-    }).whenComplete(() async{
+    }).then((v) async{
 
-      BlocProvider.of<FetchRecordCubit>(context).fetchAllRecord();
+     await  BlocProvider.of<FetchRecordCubit>(context).fetchAllRecord();
+
+
+
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => HomeScreen()));
     });
   }
+
+  // @override
+  // void didChangeDependencies() {
+  //   _storeRecordLocally();
+  //   super.didChangeDependencies();
+  // }
 
   @override
   void initState() {

@@ -22,7 +22,7 @@ class ShareWithFriendScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('share with friend'),
+        title:const Text('share with Colleagues'),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -127,23 +127,26 @@ class ShareWithFriendScreen extends StatelessWidget {
                       child: Row(
                         children: [
                           CircleAvatar(
-                            radius: 60,
+                            radius: 40,
                             backgroundImage: NetworkImage(
                                 snapshot.data!.docs[index]['image']),
                           ),
                           SizedBox(
                             width: 30,
                           ),
-                          Column(
-                            children: [
-                              Text(
-                                snapshot.data!.docs[index]['name'],
-                                style:
-                                    Theme.of(context).textTheme.headlineMedium,
-                              ),
-                              Text(snapshot.data!.docs[index]
-                                  ['medicalSpecialization'])
-                            ],
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  snapshot.data!.docs[index]['name'],
+                                  style:
+                                      Theme.of(context).textTheme.headlineMedium,
+                                ),
+                                Text(snapshot.data!.docs[index]
+                                    ['medicalSpecialization'])
+                              ],
+                            ),
                           )
                         ],
                       ),

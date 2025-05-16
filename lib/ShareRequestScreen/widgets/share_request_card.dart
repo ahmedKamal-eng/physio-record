@@ -21,6 +21,8 @@ class ShareRequestCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
         child: Column(
           children: [
+            Align(alignment: Alignment.topCenter,child: Text(requestModel.date)),
+            const SizedBox(height: 20,),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -134,7 +136,6 @@ class ShareRequestCard extends StatelessWidget {
                       },
                       child: Text(
                         "Accept",
-                        style: TextStyle(color: Colors.teal),
                       ));
                 }),
                 ElevatedButton(
@@ -177,7 +178,6 @@ class ShareRequestCard extends StatelessWidget {
                     },
                     child: Text(
                       "refuse",
-                      style: TextStyle(color: Colors.teal),
                     )),
               ],
             )

@@ -13,7 +13,7 @@ class FriendScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Your Doctor Friends"),),
+      appBar: AppBar(title: Text("Your Colleagues"),),
 
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).collection('friends').snapshots(),
@@ -37,16 +37,43 @@ class FriendScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     CircleAvatar(
-                        radius: 60,
-                        backgroundImage:NetworkImage(snapshot.data!.docs[index]['image']),
+                      backgroundColor: Colors.blue,
+                      radius: 44,
+                      child: CircleAvatar(
+                        radius: 43,
+                        backgroundColor: Colors.white,
+                        child: CircleAvatar(
+                            radius: 40,
+                            backgroundImage:NetworkImage(snapshot.data!.docs[index]['image']),
+                          ),
                       ),
+                    ),
                     SizedBox(width: 30,),
-                    Column(
-                      children: [
-                        Text(snapshot.data!.docs[index]['name'],style: Theme.of(context).textTheme.headlineMedium,),
-                        Text(snapshot.data!.docs[index]['medicalSpecialization'])
-                      ],
+                    Flexible(
+                      child: Column(
+                        // mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            maxLines: 3,
+
+                            overflow: TextOverflow.ellipsis,
+                            snapshot.data!.docs[index]['name'],
+                            style:
+                            Theme.of(context).textTheme.headlineMedium,
+
+                          ),
+                          Text(snapshot.data!.docs[index]['medicalSpecialization']),
+
+                        ],
+                      ),
                     )
+                    // Column(
+                    //   children: [
+                    //     Text(snapshot.data!.docs[index]['name'],style: Theme.of(context).textTheme.headlineMedium,),
+                    //     Text(snapshot.data!.docs[index]['medicalSpecialization'])
+                    //   ],
+                    // )
                   ],
                 ),
               ),

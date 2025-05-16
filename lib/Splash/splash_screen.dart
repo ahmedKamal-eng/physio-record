@@ -8,10 +8,12 @@ import '../Cubits/DeleteSharedRecordFromLocal/delete_shared_record_cubit.dart';
 import '../HomeScreen/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
+
   const SplashScreen({Key? key}) : super(key: key);
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
+
 }
 
 class _SplashScreenState extends State<SplashScreen> {
@@ -68,25 +70,26 @@ class _SplashScreenState extends State<SplashScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircleAvatar(
-
-                radius: screenWidth * .34,
-
-                backgroundImage:AssetImage('assets/images/4033.jpg'),
+                radius: screenWidth * .35,
+                backgroundColor:Colors.blue,
                 child: CircleAvatar(
+
                   radius: screenWidth * .34,
-                  backgroundColor: Colors.teal.withOpacity(.5),
+
+                  backgroundImage:AssetImage('assets/images/4033.jpg'),
+
+                  // child: ClipOval(
+                  //   child: Image.asset(
+                  //     ,width: screenWidth * .7,
+                  //     fit: BoxFit.cover,
+                  //   ),
+                  //
+                    //   child: SvgPicture.asset(
+                    // 'assets/images/splashimage.svg',
+                    // fit: BoxFit.cover,
+                    // width: screenWidth * .7,
+                  // )
                 ),
-                // child: ClipOval(
-                //   child: Image.asset(
-                //     ,width: screenWidth * .7,
-                //     fit: BoxFit.cover,
-                //   ),
-                //
-                  //   child: SvgPicture.asset(
-                  // 'assets/images/splashimage.svg',
-                  // fit: BoxFit.cover,
-                  // width: screenWidth * .7,
-                // )
               ),
             Padding(
                 // padding: EdgeInsets.only(top: screenHeight * paddingVal),
@@ -94,7 +97,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 // duration: Duration(seconds: 2),
                 child: Text(
                   "Physio Record",
-                  style: Theme.of(context).textTheme.headlineLarge!.copyWith(color: Colors.teal.withOpacity(.5),fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.headlineLarge!.copyWith(color: Colors.blue,fontWeight: FontWeight.bold),
                 ),
               ),
             ],

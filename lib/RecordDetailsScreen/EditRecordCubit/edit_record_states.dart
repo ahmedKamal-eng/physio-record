@@ -4,6 +4,15 @@ abstract class EditRecordState{}
 
 class EditRecordInitial extends EditRecordState{}
 
+
+//main states
+class EditLoading extends EditRecordState{}
+class EditSuccess extends EditRecordState{}
+class EditError extends EditRecordState{
+  final String error ;
+  EditError({required this.error});
+}
+
 // edit name states
 class EditNameLoading extends EditRecordState{}
 class EditNameSuccess extends EditRecordState{}

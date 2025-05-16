@@ -5,13 +5,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:physio_record/AddDoctorToCenter/AddDoctorToCenterCubit/add_doctor_to_center_cubit.dart';
 import 'package:physio_record/AddRecordScreen/AddRecordCubit/add_record_cubit.dart';
 import 'package:physio_record/AddToFriendScreen/AddToFriendCubit/add_to_friend_cubit.dart';
 import 'package:physio_record/Cubits/GetUserDataCubit/get_user_data_cubit.dart';
+import 'package:physio_record/HiveService/hive_service.dart';
 import 'package:physio_record/HomeScreen/FetchAllRecord/fetch_record_cubit.dart';
+import 'package:physio_record/JoiningRequestScreen/AcceptJoiningRequestCubit/accept_joining_request_cubit.dart';
 import 'package:physio_record/RecordDetailsScreen/EditRecordCubit/edit_record_cubit.dart';
 import 'package:physio_record/ShareRequestScreen/AcceptRequestCubit/accept_request_cubit.dart';
-import 'package:physio_record/SharedRecordScreen/DeleteSharedRecordCubit/delete_user_from_shared_record_cubit.dart';
+import 'package:physio_record/Test/fancy_design/fancy_design.dart';
 import 'package:physio_record/global_vals.dart';
 import 'package:physio_record/widgets/LogoutCubit/logout_cubit.dart';
 import 'AddFollowUpItem/AddFollowUpCubit/add_follow_up_cubit.dart';
@@ -21,24 +24,24 @@ import 'models/patient_record.dart';
 import 'Splash/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-
+import 'models/user_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   getTimeAfterXMonth(time: DateTime.now(), x: 9);
   await Firebase.initializeApp();
 
-  // final appDocumentDirectory = await getApplicationDocumentsDirectory();
 
   await Hive.initFlutter();
   // var box= await Hive.openBox('patient_records');
 
   Hive.registerAdapter(PatientRecordAdapter());
   Hive.registerAdapter(FollowUpAdapter());
+  Hive.registerAdapter(UserModelAdapter());
   var recordBox = await Hive.openBox<PatientRecord>('patient_records');
+  HiveService.initializeHive();
+
   print(recordBox.values.length);
-
-
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((value) {
@@ -54,8 +57,9 @@ void main() async {
           BlocProvider(create: (context) => ShareRecordCubit()),
           BlocProvider(create: (context) => AcceptRequestCubit()),
           BlocProvider(create: (context) => DeleteSharedRecordCubit()),
+          BlocProvider(create: (context) => AddDoctorToCenterCubit()),
+          BlocProvider(create: (context) => AcceptJoiningRequestCubit()),
           BlocProvider(create: (context) => AddToFriendCubit(),),
-
         ],
         child: MyApp(),
       ),
@@ -73,7 +77,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // final providers = [EmailAuthProvider(),GoogleProvider(clientId: clientId)];
     return MaterialApp(
-
       // routes: {
       //   '/sign-in': (context) {
       //     return SignInScreen(
@@ -100,18 +103,26 @@ class MyApp extends StatelessWidget {
 
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-
+        // appBarTheme: AppBarTheme(
+        //   backgroundColor: Colors.blue,
+        //   iconTheme: IconThemeData(color: Colors.white)
+        // ),
         elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.teal,
-            elevation: 15
-          )
-        ),
-        iconButtonTheme: IconButtonThemeData(
-          style:IconButton.styleFrom(
-            foregroundColor: Colors.teal
-          ),
-        ),
+            style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                textStyle: TextStyle(color: Colors.white),
+                backgroundColor: Colors.blue,
+                elevation: 5)),
+        textButtonTheme: TextButtonThemeData(
+            style: TextButton.styleFrom(
+                foregroundColor: Colors.blue,
+                textStyle:
+                    TextStyle(fontWeight: FontWeight.bold, fontSize: 18))),
+        // iconButtonTheme: IconButtonThemeData(
+        //   style:IconButton.styleFrom(
+        //     foregroundColor: Colors.blue
+        //   ),
+        // ),
 
         // Define your light theme here
         brightness: Brightness.light,
@@ -127,6 +138,8 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.light, // Use system theme mode (light or dark)
       // initialRoute:  '/',
       home: SplashScreen(),
+      // home: PatientListScreen(),
+      // home: SubscriptionScreen(),
       // home: TestScreen(),
     );
   }

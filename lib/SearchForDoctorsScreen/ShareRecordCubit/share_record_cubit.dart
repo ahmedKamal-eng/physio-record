@@ -14,10 +14,7 @@ class ShareRecordCubit extends Cubit<ShareRecordState> {
 
 
 
-  Future<void> shareRecord(
-      {
-
-      required String recordId,
+  Future<void> shareRecord({required String recordId,
       required context,
       required String patientName,
       required String receiverDoctorID,
@@ -25,9 +22,7 @@ class ShareRecordCubit extends Cubit<ShareRecordState> {
       required String receiverDoctorName,
       required String diagnosis,
       required bool isSharedBefore,
-      required Timestamp recordDate
-
-      }) async {
+      required Timestamp recordDate}) async {
 
     emit(ShareRecordLoading());
 
@@ -57,7 +52,7 @@ class ShareRecordCubit extends Cubit<ShareRecordState> {
           'doctorIds':doctorIds,
           "recordId": recordId,
           "doctorsSharedThisRecord": isSharedBefore,
-          "date": recordDate,
+          "date": Timestamp.now(),
           "requestId": requestId,
           "patientName": patientName,
           "diagnosis": diagnosis,
@@ -75,7 +70,7 @@ class ShareRecordCubit extends Cubit<ShareRecordState> {
           'recieverId':receiverDoctorID,
           "DoctorsSharedThisRecord": isSharedBefore,
           "recordId": recordId,
-          "date": recordDate,
+          "date": Timestamp.now(),
           "requestId": requestId,
           "patientName": patientName,
           "diagnosis": diagnosis,

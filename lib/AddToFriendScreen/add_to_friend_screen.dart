@@ -98,7 +98,7 @@ class AddToFriendScreen extends SearchDelegate<String> {
                                         child: CircularProgressIndicator(),
                                       )
                                     : Text(
-                                        "You want to add Dr.${user['userName']} to your friends"),
+                                        "You want to add Dr.${user['userName']} to your Colleagues"),
                                 actions: state is AddToFriendLoading
                                     ? []
                                     : [

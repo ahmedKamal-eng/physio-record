@@ -8,6 +8,7 @@ class ShareRequestModel{
 final bool doctorsSharedThisRecord;
 final List<String> doctorIds;
 
+
   final String date;
   final String diagnosis;
   final String doctorImage;

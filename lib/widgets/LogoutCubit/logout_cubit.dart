@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:physio_record/widgets/LogoutCubit/logout_states.dart';
 
+import '../../HiveService/user_functions.dart';
 import '../../models/patient_record.dart';
 
 class LogoutCubit extends Cubit<LogoutState> {
@@ -22,6 +23,7 @@ class LogoutCubit extends Cubit<LogoutState> {
 
         FirebaseAuth.instance.signOut().whenComplete(() async {
           var box = Hive.box<PatientRecord>('patient_records');
+          deleteUserData();
 
           // Clear the box
           await box.clear();

@@ -64,7 +64,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             'status':"approved",
             'registrationTime':currentDate,
             'startTime':currentDate,
-            'endTime':getTimeAfterXMonth(time: currentDate.toDate(), x: 1),
+            'endTime':getTimeAfterXMonth(time: currentDate.toDate(), x: 3),
             'userName':_userName.trim(),
             'userNameLowerCase':_userName.trim().toLowerCase(),
             'email':_email.trim(),
@@ -131,7 +131,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     Size size =MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Colors.teal,
+      backgroundColor: Colors.blue,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(16.0),
@@ -152,11 +152,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         },
                         child: CircleAvatar(
                           radius: size.width * .22,
-                          backgroundColor:imageXFile== null?Colors.teal: Colors.white,
+                          backgroundColor:Colors.white,
                           child: CircleAvatar(
                             backgroundImage: imageXFile == null ? null : FileImage(File(imageXFile!.path)),
                             radius: size.width * .21,
-                            backgroundColor: Colors.teal,
+                            backgroundColor: Colors.blue,
                             child: imageXFile== null? Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -320,8 +320,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       SizedBox(height: size.height *.05,),
         
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
                         onPressed: _signUp,
-                        child: Text('Sign Up',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+                        child: Text('Sign Up',style: TextStyle(fontSize: 20,color: Colors.blue,fontWeight: FontWeight.bold),),
                       ),
                       SizedBox(height: size.height *.05,),
         

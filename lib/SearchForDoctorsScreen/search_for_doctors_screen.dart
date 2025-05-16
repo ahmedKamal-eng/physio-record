@@ -46,25 +46,7 @@ class UserSearchDelegate extends SearchDelegate<String> {
         }
 
         var results = snapshot.data!.docs;
-        // if (isSharedBefore) {
-        //   FirebaseFirestore.instance
-        //       .collection('users')
-        //       .doc(FirebaseAuth.instance.currentUser!.uid)
-        //       .collection('sharedRecords')
-        //       .doc(patientRecord.id)
-        //       .get()
-        //       .then((val) {
-        //         List<String> ids= val.data()!['doctorsIds'];
-        //         for(int i=0;i< results.length;i++)
-        //           {
-        //             if(ids.contains(results[i]['id']))
-        //               {
-        //                 results.removeAt(i);
-        //               }
-        //           }
-        //
-        //   });
-        // }
+
 
         return ListView.builder(
           itemCount: results.length,
@@ -88,19 +70,6 @@ class UserSearchDelegate extends SearchDelegate<String> {
                   }
                 }
 
-                // if (state is ShareRecordLoading) {
-                //   showDialog(
-                //     context: context,
-                //     barrierDismissible: false,
-                //     builder: (BuildContext context) {
-                //       return AlertDialog(
-                //         title: Center(
-                //           child: CircularProgressIndicator(),
-                //         ),
-                //       );
-                //     },
-                //   );
-                // }
               }, builder: (context, state) {
                 return InkWell(
                   onTap: () {
@@ -172,18 +141,39 @@ class UserSearchDelegate extends SearchDelegate<String> {
                             backgroundImage: NetworkImage(user['imageUrl']),
                             radius: 40,
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                user['userName'],
-                                style:
-                                    Theme.of(context).textTheme.headlineMedium,
-                              ),
-                              Text(user['email']),
-                              Text(user['medicalSpecialization'])
-                            ],
+                          SizedBox(width: 20,),
+                          Flexible(
+                            child: Column(
+                              // mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  maxLines: 3,
+
+                                  overflow: TextOverflow.ellipsis,
+                                  user['userName'],
+                                  style:
+                                  Theme.of(context).textTheme.headlineMedium,
+
+                                ),
+                                Text(user['email']),
+                                Text(user['medicalSpecialization']),
+
+                              ],
+                            ),
                           )
+                          // Column(
+                          //   crossAxisAlignment: CrossAxisAlignment.end,
+                          //   children: [
+                          //     Text(
+                          //       user['userName'],
+                          //       style:
+                          //           Theme.of(context).textTheme.headlineMedium,
+                          //     ),
+                          //     Text(user['email']),
+                          //     Text(user['medicalSpecialization'])
+                          //   ],
+                          // )
                         ],
                       ),
                     ),

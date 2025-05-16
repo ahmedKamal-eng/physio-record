@@ -1,16 +1,40 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hive/hive.dart';
 import 'package:physio_record/global_vals.dart';
+part 'user_model.g.dart';
 
-class UserModel {
+@HiveType(typeId: 2)
+class UserModel extends HiveObject {
+
+
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String status;
+
+  @HiveField(2)
   final String registrationTime;
-  final String startTime;
-  final String endTime;
+
+  @HiveField(3)
+  String? startTime;
+
+  @HiveField(4)
+  String? endTime;
+
+  @HiveField(5)
   final String userName;
+
+  @HiveField(6)
   final String imagePath;
+
+  @HiveField(7)
   final String imageUrl;
+
+  @HiveField(8)
   final String medicalSpecialization;
+
+  @HiveField(9)
   final String email;
 
   UserModel(
@@ -40,5 +64,7 @@ class UserModel {
       data['imageUrl'],
       data['medicalSpecialization']
     );
+
+
   }
 }
