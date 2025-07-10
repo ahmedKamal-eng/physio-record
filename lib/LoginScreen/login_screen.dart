@@ -107,45 +107,45 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
 
-  Future<UserCredential> signInWithGoogle() async {
-    setState(() {
-      _isLoading=true;
-    });
-    // Trigger the authentication flow
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
-
-    // Create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
-
-    // Sign in to Firebase with the obtained credential
-    UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-
-    // Check if the user already exists in Firestore
-    DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).get();
-
-    if (!userDoc.exists) {
-      Timestamp currentDate=Timestamp.now();
-      // User doesn't exist, create a new user in Firestore
-      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-        'id': FirebaseAuth.instance.currentUser!.uid,
-        'status':"approved",
-        'registrationTime':currentDate,
-        'startTime':currentDate,
-        'endTime':getTimeAfterXMonth(time: currentDate.toDate(), x: 2),
-        'userName':userCredential.user!.displayName,
-        'email':_email.trim()
-      });
-    }
-
-    // Once signed in, return the UserCredential
-    return userCredential;
-  }
+  // Future<UserCredential> signInWithGoogle() async {
+  //   setState(() {
+  //     _isLoading=true;
+  //   });
+  //   // Trigger the authentication flow
+  //   final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  //
+  //   // Obtain the auth details from the request
+  //   final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+  //
+  //   // Create a new credential
+  //   final credential = GoogleAuthProvider.credential(
+  //     accessToken: googleAuth?.accessToken,
+  //     idToken: googleAuth?.idToken,
+  //   );
+  //
+  //   // Sign in to Firebase with the obtained credential
+  //   UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+  //
+  //   // Check if the user already exists in Firestore
+  //   DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).get();
+  //
+  //   if (!userDoc.exists) {
+  //     Timestamp currentDate=Timestamp.now();
+  //     // User doesn't exist, create a new user in Firestore
+  //     await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+  //       'id': FirebaseAuth.instance.currentUser!.uid,
+  //       'status':"approved",
+  //       'registrationTime':currentDate,
+  //       'startTime':currentDate,
+  //       'endTime':getTimeAfterXMonth(time: currentDate.toDate(), x: 2),
+  //       'userName':userCredential.user!.displayName,
+  //       'email':_email.trim()
+  //     });
+  //   }
+  //
+  //   // Once signed in, return the UserCredential
+  //   return userCredential;
+  // }
 
   // Future<User?> _signInWithGoogle() async {
   //   setState(() {

@@ -11,7 +11,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "x86_64"
+			"value" : "arm64-v8a"
 		},
 		{
 			"name" : "ANDROID_NDK",
@@ -63,7 +63,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "x86_64"
+			"value" : "arm64-v8a"
 		},
 		{
 			"name" : "CMAKE_ANDROID_NDK",
@@ -151,7 +151,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "g:/flutter-app/physio_record/android/app/.cxx/RelWithDebInfo/26c1j5xm/x86_64"
+			"value" : "g:/flutter-app/physio_record/android/app/.cxx/RelWithDebInfo/26c1j5xm/arm64-v8a"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -751,7 +751,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "G:\\flutter-app\\physio_record\\build\\app\\intermediates\\cxx\\RelWithDebInfo\\26c1j5xm\\obj\\x86_64"
+			"value" : "G:\\flutter-app\\physio_record\\build\\app\\intermediates\\cxx\\RelWithDebInfo\\26c1j5xm\\obj\\arm64-v8a"
 		},
 		{
 			"name" : "CMAKE_LINKER",
@@ -779,7 +779,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "C:\\Users\\EL_Manfy\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\ninja.exe"
+			"value" : "C:\\Users\\EL_Manfy\\AppData\\Local\\Android\\sdk\\cmake\\3.22.1\\bin\\ninja.exe"
 		},
 		{
 			"name" : "CMAKE_MODULE_LINKER_FLAGS",
@@ -1023,7 +1023,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "G:\\flutter-app\\physio_record\\build\\app\\intermediates\\cxx\\RelWithDebInfo\\26c1j5xm\\obj\\x86_64"
+			"value" : "G:\\flutter-app\\physio_record\\build\\app\\intermediates\\cxx\\RelWithDebInfo\\26c1j5xm\\obj\\arm64-v8a"
 		},
 		{
 			"name" : "CMAKE_SHARED_LINKER_FLAGS",
@@ -1331,7 +1331,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "G:/flutter-app/physio_record/android/app/.cxx/RelWithDebInfo/26c1j5xm/x86_64"
+			"value" : "G:/flutter-app/physio_record/android/app/.cxx/RelWithDebInfo/26c1j5xm/arm64-v8a"
 		},
 		{
 			"name" : "Project_IS_TOP_LEVEL",

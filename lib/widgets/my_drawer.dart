@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:physio_record/AddToFriendScreen/add_to_friend_screen.dart';
 import 'package:physio_record/JoiningRequestScreen/joining_reuest_screen.dart';
 import 'package:physio_record/MedicalCenters/medical_centers_screen.dart';
+import 'package:physio_record/Payment/view/subscription_screen.dart';
 import 'package:physio_record/ShareRequestScreen/share_request_screen.dart';
 import 'package:physio_record/SubmittedRequestsScreen/submitted_requests_screen.dart';
 import 'package:physio_record/models/user_model.dart';
@@ -132,8 +133,12 @@ class _MyDrawerState extends State<MyDrawer> {
                     ],
                   ),
                   SizedBox(
-                    height: 40,
+                    height: 10,
                   ),
+                  ElevatedButton(onPressed: (){
+                    Navigator.push(context,MaterialPageRoute(builder: (context)=>SubscriptionScreen()));
+                  }, child: Text("Extend Plan")),
+                  SizedBox(height: 25,),
                   Divider(
                     thickness: 2,
                   ),

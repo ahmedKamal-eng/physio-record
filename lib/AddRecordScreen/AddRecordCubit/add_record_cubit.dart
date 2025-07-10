@@ -1,11 +1,9 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hive/hive.dart';
 import 'package:physio_record/AddRecordScreen/AddRecordCubit/add_record_states.dart';
 import 'package:physio_record/HiveService/user_functions.dart';
@@ -14,12 +12,14 @@ import 'package:physio_record/models/medical_center_model.dart';
 import 'package:physio_record/models/patient_record.dart';
 import 'package:path/path.dart' as path;
 
+
 class AddRecordCubit extends Cubit<AddRecordState> {
   AddRecordCubit() : super(AddRecordInitial());
 
   addRecord(PatientRecord patientRecord, List<String>? rayImages,
       List<String>? raysPdf, bool fromCenter,
-      [MedicalCenterModel? centerModel]) async {
+      [MedicalCenterModel? centerModel])
+  async {
     final List<ConnectivityResult> connectivityResult =
         await (Connectivity().checkConnectivity());
     var recordBox = Hive.box<PatientRecord>('patient_records');

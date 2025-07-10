@@ -11,6 +11,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:physio_record/models/patient_record.dart';
 
 
+
+
+int freeTrialMonths=2;
+
+
 /// Returns a [Timestamp] after adding [months] to the current date.
 Timestamp getTimestampAfterMonths(int months) {
   final currentDate = DateTime.now();
@@ -41,6 +46,21 @@ Timestamp getTimestampAfterMonths(int months) {
   return Timestamp.fromDate(newDate);
 }
 
+Timestamp addMonths(DateTime date, int monthsToAdd) {
+  int newMonth = date.month + monthsToAdd;
+  int yearOffset = (newMonth - 1) ~/ 12;
+  int newYear = date.year + yearOffset;
+  int finalMonth = ((newMonth - 1) % 12) + 1;
+
+  // Handle day overflow (e.g., adding 1 month to Jan 31 becomes Feb 28/29)
+  int day = date.day;
+  int lastDayOfNewMonth = DateTime(newYear, finalMonth + 1, 0).day;
+  int newDay = day > lastDayOfNewMonth ? lastDayOfNewMonth : day;
+
+  return Timestamp.fromDate(DateTime(newYear, finalMonth, newDay, date.hour, date.minute, date.second));
+}
+
+
 
 
 Timestamp getTimeAfterXMonth({required DateTime time,required int x}){
@@ -66,17 +86,6 @@ Timestamp getTimeAfterXMonth({required DateTime time,required int x}){
   print(oneMonthFromNow.year.toString() + "/"+oneMonthFromNow.month.toString());
 
   return timestamp;
-}
-
-FollowUp? getFollowUpById({required String id,required List<FollowUp> followUplist}){
-  for(var item in followUplist)
-  {
-    if(item.id== id)
-      {
-        return item;
-      }
-  }
-  // return FollowUp(date: date, text: text, id: id);
 }
 
 
@@ -204,10 +213,10 @@ Future<List<String>> fetchAndDownloadFiles(String file,String recordId, String f
 
 }
 
-final plans = [
-  {'name': 'Monthly', 'price': 100.0, 'duration': 30},
-  {'name': 'Quarterly', 'price': 270.0, 'duration': 90},
-  {'name': 'Yearly', 'price': 1000.0, 'duration': 365},
-];
+// final plans = [
+//   {'name': 'Monthly', 'price': 100.0, 'duration': 30},
+//   {'name': 'Quarterly', 'price': 270.0, 'duration': 90},
+//   {'name': 'Yearly', 'price': 1000.0, 'duration': 365},
+// ];
 
 

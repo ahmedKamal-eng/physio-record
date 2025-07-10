@@ -73,22 +73,8 @@ class _SplashScreenState extends State<SplashScreen> {
                 radius: screenWidth * .35,
                 backgroundColor:Colors.blue,
                 child: CircleAvatar(
-
                   radius: screenWidth * .34,
-
                   backgroundImage:AssetImage('assets/images/4033.jpg'),
-
-                  // child: ClipOval(
-                  //   child: Image.asset(
-                  //     ,width: screenWidth * .7,
-                  //     fit: BoxFit.cover,
-                  //   ),
-                  //
-                    //   child: SvgPicture.asset(
-                    // 'assets/images/splashimage.svg',
-                    // fit: BoxFit.cover,
-                    // width: screenWidth * .7,
-                  // )
                 ),
               ),
             Padding(
@@ -96,7 +82,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 padding: EdgeInsets.only(top: screenHeight * .05),
                 // duration: Duration(seconds: 2),
                 child: Text(
-                  "Physio Record",
+                  "PatientRecorder",
                   style: Theme.of(context).textTheme.headlineLarge!.copyWith(color: Colors.blue,fontWeight: FontWeight.bold),
                 ),
               ),

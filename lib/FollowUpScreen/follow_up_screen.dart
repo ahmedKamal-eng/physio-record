@@ -25,11 +25,14 @@ import '../global_vals.dart';
 
 class FollowUPScreen extends StatefulWidget {
    PatientRecord patientRecord;
-  final bool internetConnection;
+  // final bool internetConnection;
   final bool fromCenter;
    bool isAdmin;
-  FollowUPScreen(
-      {required this.patientRecord, required this.internetConnection,required this.fromCenter,this.isAdmin=false});
+  FollowUPScreen({
+    required this.patientRecord,
+    required this.fromCenter,
+    this.isAdmin=false
+  });
 
   @override
   State<FollowUPScreen> createState() => _FollowUPScreenState();
@@ -38,7 +41,7 @@ class FollowUPScreen extends StatefulWidget {
 class _FollowUPScreenState extends State<FollowUPScreen> {
 
 
-  bool internetConnection = false;
+ late bool internetConnection;
   bool _isCheckingConnection = true;
 
   late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
@@ -59,24 +62,33 @@ class _FollowUPScreenState extends State<FollowUPScreen> {
 
     return _updateConnectionStatus(results);
   }
-  Future<void> _updateConnectionStatus(List<ConnectivityResult> results)
-
-  async{
+  Future<void> _updateConnectionStatus(List<ConnectivityResult> results) async{
     final patientBox = await Hive.openBox<PatientRecord>('patient_records');
 
-    setState(()  {
+    // setState(()  {
       internetConnection= results.contains(ConnectivityResult.mobile) || results.contains(ConnectivityResult.wifi);
 
       if(internetConnection) {
-        _storeFollowUpOnlyInFireStoreInLocal();
+        if(!widget.isAdmin ) {
+          await FirebaseFirestore.instance.collection('users').doc(
+              FirebaseAuth.instance.currentUser!.uid).collection('records').doc(
+              widget.patientRecord.id).get().then((v) {
+            widget.patientRecord = PatientRecord.fromFirestore(v);
+
+          });
+          _storeFollowUpOnlyInFireStoreInLocal();
+        }
+        setState(() {
+        });
+
       }else{
         final currentPatient = patientBox.values.firstWhere((p) => p.id == widget.patientRecord.id);
         widget.patientRecord=currentPatient;
-
+           setState(() {
+           });
       }
       _isCheckingConnection =false;
 
-    });
   }
 
   @override
@@ -99,6 +111,9 @@ class _FollowUPScreenState extends State<FollowUPScreen> {
 
 
   Future<void> _storeFollowUpOnlyInFireStoreInLocal() async {
+    // when the user login records are added without follow-up list
+    // this method add follow up list
+
     try {
       var recordBox = await Hive.box<PatientRecord>('patient_records');
 
@@ -168,6 +183,13 @@ class _FollowUPScreenState extends State<FollowUPScreen> {
         .of(context)
         .brightness == Brightness.dark ? true : false;
 
+    if(_isCheckingConnection)
+      {
+        return Container(
+            color: Colors.blue[50],
+            child: Center(child: CircularProgressIndicator(color: Colors.blue,),));
+      }
+
     if (!internetConnection && widget.fromCenter) {
       return NoInternetScreen(onRetry: () {
         _retryConnection();
@@ -183,7 +205,7 @@ class _FollowUPScreenState extends State<FollowUPScreen> {
                 leading: IconButton(onPressed: () {
                   Navigator.pop(context);
                 }, icon: Icon(Icons.arrow_back_ios, color: Colors.white,)),
-                title: Text(widget.patientRecord.patientName + " Follow Up",
+                title: Text(widget.patientRecord.patientName ,
                   style: TextStyle(color: Colors.white),),
 
               ),
@@ -198,8 +220,6 @@ class _FollowUPScreenState extends State<FollowUPScreen> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-
-
                           const SizedBox(
                             height: 10,
                           ),
@@ -212,7 +232,7 @@ class _FollowUPScreenState extends State<FollowUPScreen> {
                                         builder: (context) =>
                                             FullScreenImage(
                                               internetConnection:
-                                              widget.internetConnection,
+                                             internetConnection,
                                               imageUrlList:
                                               widget.patientRecord.rayImages!,
                                             )));

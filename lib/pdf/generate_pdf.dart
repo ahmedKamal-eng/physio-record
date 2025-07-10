@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 
 import '../models/patient_record.dart';
 import 'package:path/path.dart' as p;
+import 'pdf_methods.dart';
 
 class GeneratePdfScreen extends StatefulWidget {
   final String patientId;
@@ -22,6 +23,7 @@ class GeneratePdfScreen extends StatefulWidget {
 
 class _GeneratePdfScreenState extends State<GeneratePdfScreen> {
   Future<void> generatePdf() async {
+    await initFont();
     // Fetch patient data from Firestore
     final patientDoc = await FirebaseFirestore.instance
         .collection('users')
@@ -79,7 +81,7 @@ class _GeneratePdfScreenState extends State<GeneratePdfScreen> {
                 pw.Image(logoImage),
                 pw.SizedBox(height: 20),
                 pw.Text(
-                  'Physio Record App',
+                  'PatientRecorder App',
                   style: pw.TextStyle(
                       fontSize: 24,
                       fontWeight: pw.FontWeight.bold,
@@ -100,20 +102,41 @@ class _GeneratePdfScreenState extends State<GeneratePdfScreen> {
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
               pw.Row(children: [
-                pw.Text('Patient Name:',
-                    style: pw.TextStyle(color: PdfColors.grey)),
-                pw.Text(patientRecord.patientName),
+                pw.Text(
+                  'Patient Name:',
+                  style: pw.TextStyle(
+                    color: PdfColors.grey,
+                  ),
+                ),
+                pw.Text(
+                  patientRecord.patientName,
+                  style: pw.TextStyle(font: cairo),
+                  textDirection: containsArabic(patientRecord.patientName)
+                      ? pw.TextDirection.rtl
+                      : pw.TextDirection.ltr,
+                ),
               ]),
               pw.SizedBox(height: 10),
               pw.Row(children: [
-                pw.Text('Date:', style: pw.TextStyle(color: PdfColors.grey)),
+                pw.Text(
+                  'Date:',
+                  style: pw.TextStyle(color: PdfColors.grey),
+                ),
                 pw.Text(patientRecord.date),
               ]),
               pw.SizedBox(height: 10),
               pw.Row(children: [
                 pw.Text('Diagnosis:',
-                    style: pw.TextStyle(color: PdfColors.grey)),
-                pw.Text(patientRecord.diagnosis),
+                    style: pw.TextStyle(
+                      color: PdfColors.grey,
+                    )),
+                pw.Text(
+                  patientRecord.diagnosis,
+                  style: pw.TextStyle(font: cairo),
+                  textDirection: containsArabic(patientRecord.patientName)
+                      ? pw.TextDirection.rtl
+                      : pw.TextDirection.ltr,
+                ),
               ]),
               pw.SizedBox(height: 10),
               pw.Row(children: [
@@ -136,14 +159,26 @@ class _GeneratePdfScreenState extends State<GeneratePdfScreen> {
               if (patientRecord.job!.isNotEmpty)
                 pw.Row(children: [
                   pw.Text('Job: ', style: pw.TextStyle(color: PdfColors.grey)),
-                  pw.Text(patientRecord.job!.toString()),
+                  pw.Text(
+                    patientRecord.job!.toString(),
+                    textDirection: containsArabic(patientRecord.patientName)
+                        ? pw.TextDirection.rtl
+                        : pw.TextDirection.ltr,
+                    style: pw.TextStyle(font: cairo),
+                  ),
                 ]),
               if (patientRecord.job!.isNotEmpty) pw.SizedBox(height: 10),
               if (patientRecord.conditionAssessment!.isNotEmpty)
                 pw.Row(children: [
                   pw.Text('Condition Assessment: ',
                       style: pw.TextStyle(color: PdfColors.grey)),
-                  pw.Text(patientRecord.conditionAssessment!.toString()),
+                  pw.Text(
+                    patientRecord.conditionAssessment!.toString(),
+                    textDirection: containsArabic(patientRecord.patientName)
+                        ? pw.TextDirection.rtl
+                        : pw.TextDirection.ltr,
+                    style: pw.TextStyle(font: cairo),
+                  ),
                 ]),
               if (patientRecord.conditionAssessment!.isNotEmpty)
                 pw.SizedBox(height: 10),
@@ -151,7 +186,13 @@ class _GeneratePdfScreenState extends State<GeneratePdfScreen> {
                 pw.Row(children: [
                   pw.Text('Reason For Visit: ',
                       style: pw.TextStyle(color: PdfColors.grey)),
-                  pw.Text(patientRecord.reasonForVisit!.toString()),
+                  pw.Text(
+                    patientRecord.reasonForVisit!.toString(),
+                    textDirection: containsArabic(patientRecord.patientName)
+                        ? pw.TextDirection.rtl
+                        : pw.TextDirection.ltr,
+                    style: pw.TextStyle(font: cairo),
+                  ),
                 ]),
               if (patientRecord.reasonForVisit!.isNotEmpty)
                 pw.SizedBox(height: 10),
@@ -200,7 +241,13 @@ class _GeneratePdfScreenState extends State<GeneratePdfScreen> {
                   if (patientRecord.mc.isNotEmpty)
                     pw.Container(
                       width: PdfPageFormat.a4.width - 100,
-                      child: pw.Paragraph(text: patientRecord.mc.join(', ')),
+                      child: pw.Text(
+                        patientRecord.mc.join(', '),
+                        style: pw.TextStyle(font: cairo),
+                        textDirection: containsArabic(patientRecord.patientName)
+                            ? pw.TextDirection.rtl
+                            : pw.TextDirection.ltr,
+                      ),
                     ),
 
                   if (patientRecord.mc.isNotEmpty) pw.SizedBox(height: 10),
@@ -211,25 +258,37 @@ class _GeneratePdfScreenState extends State<GeneratePdfScreen> {
                         style: pw.TextStyle(color: PdfColors.grey)),
                   if (patientRecord.program.isNotEmpty)
                     pw.Container(
-                       width: PdfPageFormat.a4.width -100,
-                       child: pw.Paragraph(text: patientRecord.program.join(', ')),
+                      width: PdfPageFormat.a4.width - 100,
+                      child: pw.Text(
+                        patientRecord.program.join(', '),
+                        style: pw.TextStyle(font: cairo),
+                        textDirection: containsArabic(patientRecord.patientName)
+                            ? pw.TextDirection.rtl
+                            : pw.TextDirection.ltr,
+                      ),
+                      // child: pw.Paragraph(
+                      //
+                      //     style: pw.TextStyle(font: cairo),
+                      //     text: patientRecord.program.join(', ')),
                     ),
                   if (patientRecord.program.isNotEmpty) pw.SizedBox(height: 10),
 
-
                   if (patientRecord.knownAllergies.isNotEmpty)
                     pw.Text('Known Allergies: ',
-                          style: pw.TextStyle(color: PdfColors.grey)),
+                        style: pw.TextStyle(color: PdfColors.grey)),
                   if (patientRecord.knownAllergies.isNotEmpty)
                     pw.Container(
-                        width: PdfPageFormat.a4.width -100,
-                        child: pw.Paragraph(
-                            text: patientRecord.knownAllergies.join(', ')),
+                      width: PdfPageFormat.a4.width - 100,
+                      child: pw.Text(
+                        patientRecord.knownAllergies.join(', '),
+                        style: pw.TextStyle(font: cairo),
+                        textDirection: containsArabic(patientRecord.patientName)
+                            ? pw.TextDirection.rtl
+                            : pw.TextDirection.ltr,
                       ),
+                    ),
                   if (patientRecord.knownAllergies.isNotEmpty)
                     pw.SizedBox(height: 10),
-
-
                 ]);
           }));
     }
@@ -244,32 +303,44 @@ class _GeneratePdfScreenState extends State<GeneratePdfScreen> {
             marginBottom: 50, // Bottom margin
           ),
           build: (pw.Context context) {
-        return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-          pw.Text("Medical History"),
-          pw.SizedBox(height: 30),
-          if (patientRecord.medicalHistory.isNotEmpty)
-              pw.Text('Medical History: ',
-                  style: pw.TextStyle(color: PdfColors.grey)),
-          if (patientRecord.medicalHistory.isNotEmpty)
-              pw.Container(
-                width:  PdfPageFormat.a4.width -100,
-                child:pw.Paragraph(text: patientRecord.medicalHistory.join(', ')),
-              ),
-          if (patientRecord.medicalHistory.isNotEmpty) pw.SizedBox(height: 10),
-
-
-          if (patientRecord.medication.isNotEmpty)
-              pw.Text('Medication:',
-                  style: pw.TextStyle(color: PdfColors.grey)),
-          if(patientRecord.medication.isNotEmpty)
-            pw.Container(
-             child: pw.Paragraph(text: patientRecord.medication.join(', ')),
-            ),
-          if (patientRecord.medication.isNotEmpty) pw.SizedBox(height: 10),
-        ]);
-      }));
+            return pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text("Medical History"),
+                  pw.SizedBox(height: 30),
+                  if (patientRecord.medicalHistory.isNotEmpty)
+                    pw.Text('Medical History: ',
+                        style: pw.TextStyle(color: PdfColors.grey)),
+                  if (patientRecord.medicalHistory.isNotEmpty)
+                    pw.Container(
+                      width: PdfPageFormat.a4.width - 100,
+                      child: pw.Text(
+                        patientRecord.medicalHistory.join(', '),
+                        style: pw.TextStyle(font: cairo),
+                        textDirection: containsArabic(patientRecord.patientName)
+                            ? pw.TextDirection.rtl
+                            : pw.TextDirection.ltr,
+                      ),
+                    ),
+                  if (patientRecord.medicalHistory.isNotEmpty)
+                    pw.SizedBox(height: 10),
+                  if (patientRecord.medication.isNotEmpty)
+                    pw.Text('Medication:',
+                        style: pw.TextStyle(color: PdfColors.grey)),
+                  if (patientRecord.medication.isNotEmpty)
+                    pw.Container(
+                      child: pw.Text(
+                        patientRecord.medication.join(', '),
+                        style: pw.TextStyle(font: cairo),
+                        textDirection: containsArabic(patientRecord.patientName)
+                            ? pw.TextDirection.rtl
+                            : pw.TextDirection.ltr,
+                      ),
+                    ),
+                  if (patientRecord.medication.isNotEmpty)
+                    pw.SizedBox(height: 10),
+                ]);
+          }));
     }
 
     if (rayImages.isNotEmpty) {
@@ -298,8 +369,10 @@ class _GeneratePdfScreenState extends State<GeneratePdfScreen> {
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
                     pw.Row(children: [
-                      pw.Text('Dr.:',
-                          style: const pw.TextStyle(color: PdfColors.grey),),
+                      pw.Text(
+                        'Dr.:',
+                        style: const pw.TextStyle(color: PdfColors.grey),
+                      ),
                       pw.Text(followUp.doctorName!),
                     ]),
                     pw.SizedBox(height: 20),
@@ -318,9 +391,12 @@ class _GeneratePdfScreenState extends State<GeneratePdfScreen> {
                     pw.Container(
                       width: PdfPageFormat.a4.width -
                           100, // Adjust width based on page margins
-                      child: pw.Paragraph(
-                        text: '${followUp.text ?? ''}',
-                        style: pw.TextStyle(fontSize: 16),
+                      child: pw.Text(
+                        '${followUp.text ?? ''}',
+                        style: pw.TextStyle(font: cairo),
+                        textDirection: containsArabic(patientRecord.patientName)
+                            ? pw.TextDirection.rtl
+                            : pw.TextDirection.ltr,
                       ),
                     ),
 
@@ -367,9 +443,11 @@ class _GeneratePdfScreenState extends State<GeneratePdfScreen> {
                   pw.Container(
                     width: PdfPageFormat.a4.width -
                         100, // Adjust width based on page margins
-                    child: pw.Paragraph(
-                      text: '${followUp.text}',
-                      style: pw.TextStyle(fontSize: 16),
+                    child: pw.Text('${followUp.text}',
+                      style: pw.TextStyle(font: cairo),
+                      textDirection: containsArabic(patientRecord.patientName)
+                          ? pw.TextDirection.rtl
+                          : pw.TextDirection.ltr,
                     ),
                   ),
                   // pw.Row(children: [
@@ -422,7 +500,6 @@ class _GeneratePdfScreenState extends State<GeneratePdfScreen> {
       }
     }
 
-
     // Save and share the PDF
     final Uint8List pdfBytes = await pdf.save();
     await Printing.sharePdf(
@@ -442,6 +519,18 @@ class _GeneratePdfScreenState extends State<GeneratePdfScreen> {
   }
 
   bool isPdfGenerated = false;
+
+  dynamic cairo;
+  Future<void> initFont() async {
+    cairo = pw.Font.ttf(
+        await rootBundle.load('assets/fonts/cairo/Cairo-Regular.ttf'));
+  }
+
+  @override
+  void initState() {
+    initFont();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

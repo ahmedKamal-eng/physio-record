@@ -1,4 +1,5 @@
 
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -35,7 +36,7 @@ class PaymobService {
             ? monthly // Monthly cost in cents (EGP 100.00)
             : subscriptionType == 'quarterly'
             ? quarterly // Quarterly cost in cents (EGP 250.00)
-            : yearly, // Yearly cost in cents (EGP 900.00)
+            : yearly, // Yearly cost in cents (EGP 800.00)
         'currency': 'EGP',
         'items': []
       }),
@@ -51,7 +52,7 @@ class PaymobService {
 
   // Step 3: Generate Payment Key
   Future<String> generatePaymentKey(
-      String authToken, String orderId, String amount) async {
+      String authToken, String orderId, int amount) async {
     final response = await http.post(
       Uri.parse('https://accept.paymob.com/api/acceptance/payment_keys'),
       body: jsonEncode({
@@ -61,13 +62,13 @@ class PaymobService {
         'order_id': orderId,
         'billing_data': {
           'apartment': 'NA',
-          'email': 'user@example.com',
+          'email': 'ahmed.kamal22156@gmail.com',
           'floor': 'NA',
-          'first_name': 'User',
-          'last_name': 'Example',
+          'first_name': 'Ahmed',
+          'last_name': 'Kamal',
           'street': 'NA',
           'building': 'NA',
-          'phone_number': '+201234567890',
+          'phone_number': '+201202387968',
           'shipping_method': 'NA',
           'postal_code': 'NA',
           'city': 'Cairo',

@@ -70,100 +70,103 @@ class AddToFriendScreen extends SearchDelegate<String> {
 
             return Padding(
               padding: const EdgeInsets.all(8.0),
-              child: BlocConsumer<AddToFriendCubit, AddToFriendState>(
-                  listener: (context, state) {
-                if (state is AddToFriendSuccess) {
+              child: BlocProvider(
+                create: (context)=>AddToFriendCubit(),
+                child: BlocConsumer<AddToFriendCubit, AddToFriendState>(
+                    listener: (context, state) {
+                  if (state is AddToFriendSuccess) {
 
-                  Fluttertoast.showToast(
-                      msg:
-                          "Dr.${user['userName']} added to your friends successfully",
-                      backgroundColor: Colors.teal);
-                  if(Navigator.canPop(context))
-                    {
-                      Navigator.pop(context);
+                    Fluttertoast.showToast(
+                        msg:
+                            "Dr.${user['userName']} added to your friends successfully",
+                        backgroundColor: Colors.teal);
+                    if(Navigator.canPop(context))
+                      {
+                        Navigator.pop(context);
 
-                    }
-                }
-              }, builder: (context, state) {
-                return InkWell(
-                  onTap: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return BlocBuilder<AddToFriendCubit,AddToFriendState>(
-                            builder: (context,state) {
-                              return AlertDialog(
-                                title: state is AddToFriendLoading
-                                    ? Center(
-                                        child: CircularProgressIndicator(),
-                                      )
-                                    : Text(
-                                        "You want to add Dr.${user['userName']} to your Colleagues"),
-                                actions: state is AddToFriendLoading
-                                    ? []
-                                    : [
-                                        ElevatedButton(
-                                            onPressed: () {
-                                              BlocProvider.of<AddToFriendCubit>(
-                                                      context)
-                                                  .addUserToFriend(
-                                                      id: user['id'],
-                                                      name: user['userName'],
-                                                      img: user['imageUrl'],
-                                                      medicalSpecialization: user[
-                                                          'medicalSpecialization']);
-                                            },
-                                            child: Text("Yes")),
-                                        ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Text("No")),
-                                      ],
-                              );
-                            }
-                          );
-                        });
-                  },
-                  child: Card(
+                      }
+                  }
+                }, builder: (context, state) {
+                  return InkWell(
+                    onTap: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return BlocBuilder<AddToFriendCubit,AddToFriendState>(
+                              builder: (context,state) {
+                                return AlertDialog(
+                                  title: state is AddToFriendLoading
+                                      ? Center(
+                                          child: CircularProgressIndicator(),
+                                        )
+                                      : Text(
+                                          "You want to add Dr.${user['userName']} to your Colleagues"),
+                                  actions: state is AddToFriendLoading
+                                      ? []
+                                      : [
+                                          ElevatedButton(
+                                              onPressed: () {
+                                                BlocProvider.of<AddToFriendCubit>(
+                                                        context)
+                                                    .addUserToFriend(
+                                                        id: user['id'],
+                                                        name: user['userName'],
+                                                        img: user['imageUrl'],
+                                                        medicalSpecialization: user[
+                                                            'medicalSpecialization']);
+                                              },
+                                              child: Text("Yes")),
+                                          ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text("No")),
+                                        ],
+                                );
+                              }
+                            );
+                          });
+                    },
+                    child: Card(
 
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(user['imageUrl']),
-                            radius: 40,
-                          ),
-                          SizedBox(width: 20,),
-
-                          Flexible(
-                            child: Column(
-                              // mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  maxLines: 3,
-
-                                    overflow: TextOverflow.ellipsis,
-                                    user['userName'],
-                                    style:
-                                        Theme.of(context).textTheme.headlineMedium,
-
-                                  ),
-                                Text(user['email']),
-                                Text(user['medicalSpecialization']),
-
-                              ],
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CircleAvatar(
+                              backgroundImage: NetworkImage(user['imageUrl']),
+                              radius: 40,
                             ),
-                          )
-                        ],
+                            SizedBox(width: 20,),
+
+                            Flexible(
+                              child: Column(
+                                // mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    maxLines: 3,
+
+                                      overflow: TextOverflow.ellipsis,
+                                      user['userName'],
+                                      style:
+                                          Theme.of(context).textTheme.headlineMedium,
+
+                                    ),
+                                  Text(user['email']),
+                                  Text(user['medicalSpecialization']),
+
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }),
+                  );
+                }),
+              ),
             );
 
             // return ListTile(

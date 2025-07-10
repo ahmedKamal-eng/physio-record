@@ -9,6 +9,7 @@ import 'package:physio_record/AddDoctorToCenter/add_doctor_to_center_screen.dart
 import 'package:physio_record/CenterDoctorDetails/center_doctor_details.dart';
 import 'package:physio_record/MedicalCenterDetails/widgets/center_records_list.dart';
 import 'package:physio_record/MedicalCenterDetails/widgets/doctor_card.dart';
+import 'package:physio_record/MedicalCenterDetails/widgets/doctor_records_list.dart';
 import 'package:physio_record/NoInterNetScreen/no_internet_screen.dart';
 import 'package:physio_record/models/medical_center_model.dart';
 
@@ -103,10 +104,7 @@ class _MedicalCenterDetailsScreenState
   @override
   void initState() {
     initConnectivity();
-    _connectivitySubscription=Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
-
-
-
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
     super.initState();
   }
 
@@ -147,8 +145,8 @@ class _MedicalCenterDetailsScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Admin Info Card
 
+                    // Admin Info Card
                     Card(
                       elevation: 4,
                       shape: RoundedRectangleBorder(
@@ -268,42 +266,46 @@ class _MedicalCenterDetailsScreenState
                 }):SliverToBoxAdapter(
               child:CenterRecordsList(centerModel:widget.centerModel),
             )
-                : StreamBuilder<QuerySnapshot>(
-                stream: recordsStream,
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return SliverToBoxAdapter(
-                        child: Text("something went wrong"));
-                  }
-
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return SliverFillRemaining(
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  }
-
-                  return SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                        return Padding(
-                          padding: snapshot.data!.docs.length == index + 1
-                              ? const EdgeInsets.only(
-                              top: 3.0, right: 3, left: 3, bottom: 80)
-                              : const EdgeInsets.all(3.0),
-                          child: RecordCard(
-                            fromCenter: true,
-                              internetConnection: true,
-                              patient: PatientRecord.fromFirestore(
-                                  snapshot.data!.docs[index]),
-                              patientIndex: index),
-                        );
-                      },
-                      childCount: snapshot.data!.docs.length,
-                    ),
-                  );
-                })
+                : SliverToBoxAdapter(
+              child: DoctorRecordsList(centerModel: widget.centerModel),
+            )
+            
+            // StreamBuilder<QuerySnapshot>(
+            //     stream: recordsStream,
+            //     builder: (context, snapshot) {
+            //       if (snapshot.hasError) {
+            //         return SliverToBoxAdapter(
+            //             child: Text("something went wrong"));
+            //       }
+            //
+            //       if (snapshot.connectionState == ConnectionState.waiting) {
+            //         return SliverFillRemaining(
+            //           child: Center(
+            //             child: CircularProgressIndicator(),
+            //           ),
+            //         );
+            //       }
+            //
+            //       return SliverList(
+            //         delegate: SliverChildBuilderDelegate(
+            //               (context, index) {
+            //             return Padding(
+            //               padding: snapshot.data!.docs.length == index + 1
+            //                   ? const EdgeInsets.only(
+            //                   top: 3.0, right: 3, left: 3, bottom: 80)
+            //                   : const EdgeInsets.all(3.0),
+            //               child: RecordCard(
+            //                 fromCenter: true,
+            //                   internetConnection: true,
+            //                   patient: PatientRecord.fromFirestore(
+            //                       snapshot.data!.docs[index]),
+            //                   patientIndex: index),
+            //             );
+            //           },
+            //           childCount: snapshot.data!.docs.length,
+            //         ),
+            //       );
+            //     })
           ],
         ),
         floatingActionButton:

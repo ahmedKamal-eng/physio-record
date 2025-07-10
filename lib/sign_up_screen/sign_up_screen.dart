@@ -64,7 +64,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             'status':"approved",
             'registrationTime':currentDate,
             'startTime':currentDate,
-            'endTime':getTimeAfterXMonth(time: currentDate.toDate(), x: 3),
+            'endTime':getTimeAfterXMonth(time: currentDate.toDate(), x: freeTrialMonths),
             'userName':_userName.trim(),
             'userNameLowerCase':_userName.trim().toLowerCase(),
             'email':_email.trim(),

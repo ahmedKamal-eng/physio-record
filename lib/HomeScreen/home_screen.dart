@@ -19,20 +19,15 @@ import 'package:physio_record/models/patient_record.dart';
 import 'package:physio_record/models/user_model.dart';
 import 'package:physio_record/widgets/my_drawer.dart';
 
-
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   bool isEndTimePassed = false;
-
   bool isFiltered = false;
-
   bool internetConnection = false;
   bool _isCheckingConnection = true;
 
@@ -97,28 +92,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   }
 
+
+
   @override
   void initState() {
-
     initConnectivity();
     _connectivitySubscription =
         Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
-
     _checkConnectivityAndUpload();
-
     super.initState();
-
-    // initConnectivity();
-    // _connectivitySubscription =
-    //     Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
-
   }
 
   _checkConnectivityAndUpload() async
   {
     await BlocProvider.of<FetchRecordCubit>(context).fetchAllRecord();
-
-
   }
 
 
@@ -239,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   iconTheme:  IconThemeData(color: Colors.white, size: 30),
                   backgroundColor: Colors.blue,
                   title: Text(
-                    "Physio Record",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                    "PatientRecorder",style: TextStyle(fontFamily: 'cairo',fontWeight: FontWeight.bold,color: Colors.white),
                   ),
                   actions: [
 
@@ -377,7 +364,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 body: internetConnection
                     ? Column(
                         children: [
-                          TrialStatusCard(registrationDate:convertStringToTimestamp( getCurrentUser()!.registrationTime).toDate(),),
+
+                          TrialStatusCard(registrationDate:convertStringToTimestamp( getCurrentUser()!.registrationTime).toDate(),endDate: convertStringToTimestamp( getCurrentUser()!.endTime!).toDate(),),
                           if (isFiltered)
                             SizedBox(
                               height: MediaQuery.of(context).size.height * .1,
@@ -441,7 +429,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              TrialStatusCard(registrationDate:convertStringToTimestamp( getCurrentUser()!.registrationTime).toDate(),),
+                              TrialStatusCard(registrationDate:convertStringToTimestamp( getCurrentUser()!.registrationTime).toDate(),endDate: convertStringToTimestamp( getCurrentUser()!.endTime!).toDate()),
 
                               if (BlocProvider.of<FetchRecordCubit>(context)
                                   .isFiltered)

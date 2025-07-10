@@ -59,7 +59,6 @@ class _RecordCardState extends State<RecordCard> {
                     fromCenter: widget.fromCenter,
                     isAdmin:widget.isAdmin,
                     patientRecord: widget.patient,
-                    internetConnection: widget.internetConnection,
                   )));
         },
         borderRadius: BorderRadius.circular(12.0),

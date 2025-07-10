@@ -1,3 +1,5 @@
+
+
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:physio_record/Cubits/GetUserDataCubit/get_user_data_cubit.dart';
 import 'package:physio_record/HiveService/user_functions.dart';
-import 'package:physio_record/HomeScreen/home_screen.dart';
 import 'package:physio_record/Payment/view/paymob_service.dart';
 import 'package:physio_record/Payment/view/subscribtion_card.dart';
 import 'package:physio_record/Splash/splash_screen.dart';
@@ -73,6 +74,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
     initConnectivity();
     _connectivitySubscription=Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
+    getPrices();
+
 
     super.initState();
   }
@@ -88,6 +91,30 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   int? subscriptionDuration;
 
+  int? monthly,quarterly,yearly;
+
+  getPrices()async{
+    await FirebaseFirestore.instance.collection('plans').doc('monthly').get().then((v){
+      monthly=v.data()!['android'];
+
+    });
+
+    await FirebaseFirestore.instance.collection('plans').doc('quarterly').get().then((v){
+      quarterly=v.data()!['android'];
+    });
+    await FirebaseFirestore.instance.collection('plans').doc('yearly').get().then((v){
+      yearly=v.data()!['android'];
+    });
+
+    setState(() {
+    });
+
+  }
+
+
+
+
+
   Future<void> initiatePayment(String subscriptionType) async {
     if(subscriptionType == 'monthly'){
       subscriptionDuration=30;
@@ -101,34 +128,24 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         subscriptionDuration=365;
       }
     try {
-      
-      late int monthly,quarterly,yearly;
-      
-      await FirebaseFirestore.instance.collection('plans').doc('monthly').get().then((v){
-          monthly=v.data()!['Monthly'];
-      });
 
-      await FirebaseFirestore.instance.collection('plans').doc('quarterly').get().then((v){
-        quarterly=v.data()!['Quarterly'];
-      });
-      await FirebaseFirestore.instance.collection('plans').doc('yearly').get().then((v){
-        yearly=v.data()!['Yearly'];
-      });
+
+
       final authToken = await _paymobService.getAuthToken();
       print("auth token is:" + authToken);
       final orderId =
-          await _paymobService.createOrder(authToken, subscriptionType,monthly,quarterly,yearly);
+          await _paymobService.createOrder(authToken, subscriptionType,monthly!,quarterly!,yearly!);
       final amountCents = subscriptionType == 'monthly'
-          ? '10000'
+          ? '${monthly.toString()}'
           : subscriptionType == 'quarterly'
-              ? '25000'
-              : '90000';
+              ? '${quarterly.toString()}'
+              : '${yearly.toString()}';
       final paymentKey = await _paymobService.generatePaymentKey(
-          authToken, orderId, amountCents);
+          authToken, orderId, int.parse(amountCents));
 
       setState(() {
         iframeUrl =
-            'https://accept.paymob.com/api/acceptance/iframes/725858?payment_token=${paymentKey}';
+            'https://accept.paymob.com/api/acceptance/iframes/725859?payment_token=${paymentKey}';
       });
     } catch (e) {
       print('Error: $e');
@@ -138,18 +155,28 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   void onPaymentSuccess() async{
     switch (subscriptionDuration){
       case 30:
+
+
         Timestamp currentDate=Timestamp.now();
+        Timestamp endDate=convertStringToTimestamp(BlocProvider.of<GetUserDataCubit>(context).userModel!.endTime!);
+        bool isEndTimePass=hasTimestampPassed(endDate);
+
+        if(isEndTimePass)
+          {
+
+            // end time pass
         await FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).update(
             {"endTime":getTimestampAfterMonths(1),
              "startTime": currentDate
             }).whenComplete((){
 
-              UserModel currentUser = getCurrentUser()!;
-              currentUser.startTime=convertTimestampToString(currentDate);
-              currentUser.endTime=convertTimestampToString(getTimestampAfterMonths(1));
-              currentUser.save();
-              BlocProvider.of<GetUserDataCubit>(context).getUserData();
-              saveUserData(currentUser);
+          UserModel currentUser = getCurrentUser()!;
+          currentUser.startTime=convertTimestampToString(currentDate);
+          currentUser.endTime=convertTimestampToString(getTimestampAfterMonths(1));
+          currentUser.save();
+          BlocProvider.of<GetUserDataCubit>(context).getUserData();
+          saveUserData(currentUser);
+
 
 
 
@@ -158,7 +185,31 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             MaterialPageRoute(builder: (context) => SplashScreen()),
           );
         });
-        
+          }else{
+          // this when user want to extend plan (click on extend plan on drawer)
+          await FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).update(
+              {"endTime":addMonths(endDate.toDate(), 1),
+                "startTime": currentDate
+              }).whenComplete((){
+
+            UserModel currentUser = getCurrentUser()!;
+            currentUser.startTime=convertTimestampToString(currentDate);
+            currentUser.endTime=convertTimestampToString(addMonths(endDate.toDate(), 1));
+            currentUser.save();
+            BlocProvider.of<GetUserDataCubit>(context).getUserData();
+            saveUserData(currentUser);
+
+
+
+
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => SplashScreen()),
+            );
+          });
+
+        }
+
 
         break;
 
@@ -230,6 +281,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     );
   }
 
+
+
+
   @override
   Widget build(BuildContext context) {
     return Builder(
@@ -244,7 +298,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           if(internetConnection)
             {
               return  Scaffold(
-                appBar: AppBar(title: Text('Subscription Screen')),
+                backgroundColor: Colors.blue[50],
+                appBar: AppBar(
+                    backgroundColor: Colors.blue[50],
+                    title: Text('Subscription Screen')),
                 body: iframeUrl.isEmpty
                     ? Container(
                   width: double.infinity,
@@ -253,6 +310,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        if(hasTimestampPassed(convertStringToTimestamp(BlocProvider.of<GetUserDataCubit>(context).userModel!.endTime!)))
                         const Text('Your subscription has expired'),
                         const SizedBox(height: 20,),
                         const Text(
@@ -263,11 +321,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
+                        monthly==null?
+                            CircularProgressIndicator():
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: SubscriptionCard(
                               planName: "Monthly",
-                              price: 100.00,
+                              price: ((monthly!.toDouble()) / 100.0),
                               duration: "30 Days",
                               onSubscribe: () => initiatePayment('monthly')),
                         ),
@@ -283,7 +343,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           padding: const EdgeInsets.all(8.0),
                           child: SubscriptionCard(
                               planName: "Yearly",
-                              price: 900.00,
+                              price: 800.00,
                               duration: "1 Year",
                               onSubscribe: () => initiatePayment('yearly')),
                         ),
@@ -296,7 +356,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                     URLRequest(url: WebUri.uri(Uri.parse(iframeUrl))),
                     onLoadStop: (controller, url) async {
                       print(
-                          ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::" +
+                          ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::" +
                               url.toString());
 
                       if (url.toString().contains('success=true')) {

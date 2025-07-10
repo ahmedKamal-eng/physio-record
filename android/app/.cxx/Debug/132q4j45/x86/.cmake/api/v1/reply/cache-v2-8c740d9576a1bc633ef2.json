@@ -11,7 +11,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "arm64-v8a"
+			"value" : "x86"
 		},
 		{
 			"name" : "ANDROID_NDK",
@@ -23,7 +23,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "C:\\Users\\EL_Manfy\\AppData\\Local\\Android\\sdk\\ndk\\25.1.8937393"
+			"value" : "C:\\Users\\EL_Manfy\\AppData\\Local\\Android\\Sdk\\ndk\\25.1.8937393"
 		},
 		{
 			"name" : "ANDROID_PLATFORM",
@@ -63,7 +63,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "arm64-v8a"
+			"value" : "x86"
 		},
 		{
 			"name" : "CMAKE_ANDROID_NDK",
@@ -75,7 +75,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "C:\\Users\\EL_Manfy\\AppData\\Local\\Android\\sdk\\ndk\\25.1.8937393"
+			"value" : "C:\\Users\\EL_Manfy\\AppData\\Local\\Android\\Sdk\\ndk\\25.1.8937393"
 		},
 		{
 			"name" : "CMAKE_AR",
@@ -139,7 +139,7 @@
 				}
 			],
 			"type" : "STRING",
-			"value" : "RelWithDebInfo"
+			"value" : "Debug"
 		},
 		{
 			"name" : "CMAKE_CACHEFILE_DIR",
@@ -151,7 +151,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "g:/flutter-app/physio_record/android/app/.cxx/RelWithDebInfo/26c1j5xm/arm64-v8a"
+			"value" : "g:/flutter-app/physio_record/android/app/.cxx/Debug/132q4j45/x86"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -751,7 +751,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "G:\\flutter-app\\physio_record\\build\\app\\intermediates\\cxx\\RelWithDebInfo\\26c1j5xm\\obj\\arm64-v8a"
+			"value" : "G:\\flutter-app\\physio_record\\build\\app\\intermediates\\cxx\\Debug\\132q4j45\\obj\\x86"
 		},
 		{
 			"name" : "CMAKE_LINKER",
@@ -1023,7 +1023,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "G:\\flutter-app\\physio_record\\build\\app\\intermediates\\cxx\\RelWithDebInfo\\26c1j5xm\\obj\\arm64-v8a"
+			"value" : "G:\\flutter-app\\physio_record\\build\\app\\intermediates\\cxx\\Debug\\132q4j45\\obj\\x86"
 		},
 		{
 			"name" : "CMAKE_SHARED_LINKER_FLAGS",
@@ -1331,7 +1331,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "G:/flutter-app/physio_record/android/app/.cxx/RelWithDebInfo/26c1j5xm/arm64-v8a"
+			"value" : "G:/flutter-app/physio_record/android/app/.cxx/Debug/132q4j45/x86"
 		},
 		{
 			"name" : "Project_IS_TOP_LEVEL",
